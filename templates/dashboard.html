@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IoT Cyber Defense</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2>IoT Defense</h2>
+                <p>Cyber Security</p>
+            </div>
+
+            <nav>
+
+                <a href="#" class="nav-item active">
+                    Dashboard
+                </a>
+
+                <a href="#" class="nav-item">
+                    Devices
+                </a>
+
+                <a href="#" class="nav-item">
+                    Security Events
+                </a>
+
+                <a href="#" class="nav-item">
+                    Reports
+                </a>
+
+                <a href="#" class="nav-item">
+                    Settings
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Top Header -->
+            <header class="top-header">
+
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>IoT Network Security Monitoring</p>
+                </div>
+
+                <div class="system-status">
+                    <span class="status-dot"></span>
+                    System Online
+                </div>
+
+            </header>
+
+
+            <!-- Overview Cards -->
+            <section class="overview">
+
+                <div class="card">
+
+                    <p>Total Devices</p>
+
+                    <h2 id="total-devices">0</h2>
+
+                    <span>Registered devices</span>
+
+                </div>
+
+
+                <div class="card">
+
+                    <p>Online Devices</p>
+
+                    <h2 id="online-devices">0</h2>
+
+                    <span>Currently connected</span>
+
+                </div>
+
+
+                <div class="card warning">
+
+                    <p>Suspicious Devices</p>
+
+                    <h2 id="suspicious-devices">1</h2>
+
+                    <span>Requires attention</span>
+
+                </div>
+
+
+                <div class="card">
+
+                    <p>Security Events</p>
+
+                    <h2>5</h2>
+
+                    <span>Detected events</span>
+
+                </div>
+
+            </section>
+
+
+            <!-- Main Grid -->
+            <section class="content-grid">
+
+                <!-- Device Status -->
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h2>Device Status</h2>
+
+                        <button class="view-button">
+                            View All
+                        </button>
+
+                    </div>
+
+
+                    <div class="device-list" id="device-list">
+                        <p>Devices Loading...</p>
+                    </div>
+
+                </div>
+
+
+                <!-- Security Events -->
+                <div class="panel">
+
+                    <div class="panel-header">
+
+                        <h2>Recent Security Events</h2>
+
+                        <button class="view-button">
+                            View All
+                        </button>
+
+                    </div>
+
+
+                    <div class="event-list">
+
+                        <div class="event">
+
+                            <div>
+                                <strong>ESP32_03</strong>
+                                <p>Abnormal behavior detected</p>
+                            </div>
+
+                            <span class="badge suspicious">
+                                Alert
+                            </span>
+
+                        </div>
+
+
+                        <div class="event">
+
+                            <div>
+                                <strong>ESP32_01</strong>
+                                <p>Normal activity</p>
+                            </div>
+
+                            <span class="badge normal">
+                                Normal
+                            </span>
+
+                        </div>
+
+
+                        <div class="event">
+
+                            <div>
+                                <strong>ESP32_02</strong>
+                                <p>Device connected</p>
+                            </div>
+
+                            <span class="badge normal">
+                                Normal
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Network Activity -->
+            <section class="panel network-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Network Activity</h2>
+                        <p>IoT network communication overview</p>
+                    </div>
+
+                </div>
+
+                <div class="network-placeholder">
+
+                    <div class="activity-bar bar-1"></div>
+                    <div class="activity-bar bar-2"></div>
+                    <div class="activity-bar bar-3"></div>
+                    <div class="activity-bar bar-4"></div>
+                    <div class="activity-bar bar-5"></div>
+                    <div class="activity-bar bar-6"></div>
+                    <div class="activity-bar bar-7"></div>
+                    <div class="activity-bar bar-8"></div>
+
+                </div>
+
+            </section>
+
+
+        </main>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+
+</html>
