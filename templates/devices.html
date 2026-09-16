@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Devices - IoT Defense</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2>IoT Defense</h2>
+                <p>Cyber Security</p>
+            </div>
+
+            <nav>
+
+                <a href="/" class="nav-item">
+                    Dashboard
+                </a>
+
+                <a href="/devices" class="nav-item active">
+                    Devices
+                </a>
+
+                <a href="/security-events" class="nav-item">
+                    Security Events
+                </a>
+
+                <a href="/reports" class="nav-item">
+                    Reports
+                </a>
+
+                <a href="/settings" class="nav-item">
+                    Settings
+                </a>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- Main Content -->
+
+        <main class="main-content">
+
+            <header class="top-header">
+
+                <div>
+
+                    <h1>Devices</h1>
+
+                    <p>
+                        Monitor connected IoT devices
+                    </p>
+
+                </div>
+
+                <div class="system-status">
+
+                    <span class="status-dot"></span>
+
+                    System Online
+
+                </div>
+
+            </header>
+
+
+            <!-- Summary Cards -->
+
+            <section class="overview">
+
+                <div class="card">
+
+                    <p>Total Devices</p>
+
+                    <h2 id="total-devices">0</h2>
+
+                    <span>Registered devices</span>
+
+                </div>
+
+
+                <div class="card">
+
+                    <p>Online Devices</p>
+
+                    <h2 id="online-devices">0</h2>
+
+                    <span>Currently connected</span>
+
+                </div>
+
+
+                <div class="card warning">
+
+                    <p>Suspicious Devices</p>
+
+                    <h2 id="suspicious-devices">0</h2>
+
+                    <span>Requires attention</span>
+
+                </div>
+
+            </section>
+
+
+            <!-- Device List -->
+
+            <div class="devices-section">
+
+                <div class="section-header">
+
+                    <div>
+                        <h2>Registered Devices</h2>
+                        <p>IoT devices connected to the network</p>
+                    </div>
+
+                    <input type="text" id="device-search" placeholder="Search devices...">
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table class="device-table">
+
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>IP Address</th>
+                                <th>Status</th>
+                                <th>Last Seen</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="devices-table-body">
+
+                            <tr>
+                                <td colspan="6">
+                                    Loading devices...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <script src="{{ url_for(
+    'static',
+    filename='js/devices.js'
+) }}"></script>
+
+</body>
+
+</html>

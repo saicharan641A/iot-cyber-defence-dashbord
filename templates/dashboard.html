@@ -7,8 +7,7 @@
 
     <title>IoT Cyber Defense</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body>
@@ -25,23 +24,23 @@
 
             <nav>
 
-                <a href="#" class="nav-item active">
+                <a href="/" class="nav-item active">
                     Dashboard
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="/devices" class="nav-item">
                     Devices
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="/security-events" class="nav-item">
                     Security Events
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="/reports" class="nav-item">
                     Reports
                 </a>
 
-                <a href="#" class="nav-item">
+                <a href="/settings" class="nav-item">
                     Settings
                 </a>
 
@@ -128,7 +127,7 @@
 
                         <h2>Device Status</h2>
 
-                        <button class="view-button">
+                        <button class="view-button" onclick="window.location.href='/devices'">
                             View All
                         </button>
 
@@ -149,52 +148,31 @@
 
                         <h2>Recent Security Events</h2>
 
-                        <button class="view-button">
+                        <button class="view-button" onclick="window.location.href='/security-events'">
                             View All
                         </button>
 
                     </div>
 
 
-                    <div class="event-list">
+                    <div class="event-list" id="security-events-list">
 
                         <div class="event">
 
                             <div>
-                                <strong>ESP32_03</strong>
-                                <p>Abnormal behavior detected</p>
-                            </div>
 
-                            <span class="badge suspicious">
-                                Alert
-                            </span>
+                                <strong>
+                                    Loading...
+                                </strong>
 
-                        </div>
+                                <p>
+                                    Loading security events...
+                                </p>
 
-
-                        <div class="event">
-
-                            <div>
-                                <strong>ESP32_01</strong>
-                                <p>Normal activity</p>
                             </div>
 
                             <span class="badge normal">
-                                Normal
-                            </span>
-
-                        </div>
-
-
-                        <div class="event">
-
-                            <div>
-                                <strong>ESP32_02</strong>
-                                <p>Device connected</p>
-                            </div>
-
-                            <span class="badge normal">
-                                Normal
+                                Loading
                             </span>
 
                         </div>

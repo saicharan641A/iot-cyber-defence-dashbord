@@ -1,8 +1,8 @@
 from flask import Flask, render_template, jsonify
-
 from database import (
     initialize_database,
     insert_sample_devices,
+    insert_sample_events,
     get_connection
 )
 
@@ -13,6 +13,7 @@ app = Flask(__name__)
 # Initialize database
 initialize_database()
 insert_sample_devices()
+insert_sample_events()
 
 
 @app.route("/")
@@ -49,11 +50,47 @@ def get_security_events():
     """).fetchall()
 
     connection.close()
+    
 
     return jsonify([
         dict(event)
         for event in events
     ])
+    
+@app.route('/security-events')
+def security_events():
+    return render_template("events.html")
+     
+@app.route("/devices")
+def devices():
+    return render_template("devices.html")
+
+@app.route("/api/reports")
+def get_reports():
+
+    connection = get_connection()
+
+    events = connection.execute("""
+        SELECT *
+        FROM security_events
+        ORDER BY id DESC
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        dict(event)
+        for event in events
+    ])
+    
+@app.route("/reports")
+def reports():
+    return render_template("reports.html")
+
+
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
 
 
 if __name__ == "__main__":
