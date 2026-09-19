@@ -1436,3 +1436,164 @@ nav {
         font-size: 16px;
     }
 }
+
+/* ==========================================
+   SENSOR MONITORING
+   ========================================== */
+
+.sensor-panel {
+    margin-top: 20px;
+}
+
+
+.panel-subtitle {
+    margin: 4px 0 0;
+
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+.live-indicator {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 5px 10px;
+
+    border-radius: 999px;
+
+    background: #ecfdf5;
+
+    color: #15803d;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.live-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+}
+
+
+.sensor-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin-top: 18px;
+}
+
+
+.sensor-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 16px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 10px;
+
+    transition: 0.2s ease;
+}
+
+
+.sensor-card:hover {
+    background: #f1f5f9;
+
+    transform: translateY(-2px);
+}
+
+
+.sensor-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    font-size: 20px;
+}
+
+
+.sensor-info {
+    display: flex;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    column-gap: 4px;
+}
+
+
+.sensor-label {
+    width: 100%;
+
+    margin-bottom: 3px;
+
+    font-size: 12px;
+
+    color: #64748b;
+}
+
+
+.sensor-info strong {
+    font-size: 20px;
+
+    font-weight: 650;
+
+    color: #111827;
+}
+
+
+.sensor-unit {
+    font-size: 13px;
+
+    color: #64748b;
+}
+
+
+@media (max-width: 900px) {
+
+    .sensor-grid {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .sensor-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

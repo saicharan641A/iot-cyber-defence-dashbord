@@ -1,222 +1,229 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>IoT Cyber Defense</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
 
-<body>
-
+  <body>
     <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <h2>IoT Defense</h2>
+          <p>Cyber Security</p>
+        </div>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <nav>
+          <a href="/" class="nav-item active"> Dashboard </a>
 
-            <div class="logo">
-                <h2>IoT Defense</h2>
-                <p>Cyber Security</p>
+          <a href="/devices" class="nav-item"> Devices </a>
+
+          <a href="/security-events" class="nav-item"> Security Events </a>
+
+          <a href="/reports" class="nav-item"> Reports </a>
+
+          <a href="/settings" class="nav-item"> Settings </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p>IoT Network Security Monitoring</p>
+          </div>
+
+          <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+          </div>
+        </header>
+
+        <!-- Overview Cards -->
+        <section class="overview">
+          <div class="card">
+            <p>Total Devices</p>
+
+            <h2 id="total-devices">0</h2>
+
+            <span>Registered devices</span>
+          </div>
+
+          <div class="card">
+            <p>Online Devices</p>
+
+            <h2 id="online-devices">0</h2>
+
+            <span>Currently connected</span>
+          </div>
+
+          <div class="card warning">
+            <p>Suspicious Devices</p>
+
+            <h2 id="suspicious-devices">1</h2>
+
+            <span>Requires attention</span>
+          </div>
+
+          <div class="card">
+            <p>Security Events</p>
+
+            <h2>5</h2>
+
+            <span>Detected events</span>
+          </div>
+        </section>
+
+        <!-- Main Grid -->
+        <section class="content-grid">
+          <!-- Device Status -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Device Status</h2>
+
+              <button
+                class="view-button"
+                onclick="window.location.href = '/devices'"
+              >
+                View All
+              </button>
             </div>
 
-            <nav>
+            <div class="device-list" id="device-list">
+              <p>Devices Loading...</p>
+            </div>
+          </div>
 
-                <a href="/" class="nav-item active">
-                    Dashboard
-                </a>
+          <!-- Security Events -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Recent Security Events</h2>
 
-                <a href="/devices" class="nav-item">
-                    Devices
-                </a>
+              <button
+                class="view-button"
+                onclick="window.location.href = '/security-events'"
+              >
+                View All
+              </button>
+            </div>
 
-                <a href="/security-events" class="nav-item">
-                    Security Events
-                </a>
-
-                <a href="/reports" class="nav-item">
-                    Reports
-                </a>
-
-                <a href="/settings" class="nav-item">
-                    Settings
-                </a>
-
-            </nav>
-
-        </aside>
-
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <!-- Top Header -->
-            <header class="top-header">
-
+            <div class="event-list" id="security-events-list">
+              <div class="event">
                 <div>
-                    <h1>Dashboard</h1>
-                    <p>IoT Network Security Monitoring</p>
+                  <strong> Loading... </strong>
+
+                  <p>Loading security events...</p>
                 </div>
 
-                <div class="system-status">
-                    <span class="status-dot"></span>
-                    System Online
-                </div>
-
-            </header>
-
-
-            <!-- Overview Cards -->
-            <section class="overview">
-
-                <div class="card">
-
-                    <p>Total Devices</p>
-
-                    <h2 id="total-devices">0</h2>
-
-                    <span>Registered devices</span>
-
-                </div>
-
-
-                <div class="card">
-
-                    <p>Online Devices</p>
-
-                    <h2 id="online-devices">0</h2>
-
-                    <span>Currently connected</span>
-
-                </div>
-
-
-                <div class="card warning">
-
-                    <p>Suspicious Devices</p>
-
-                    <h2 id="suspicious-devices">1</h2>
-
-                    <span>Requires attention</span>
-
-                </div>
-
-
-                <div class="card">
-
-                    <p>Security Events</p>
-
-                    <h2>5</h2>
-
-                    <span>Detected events</span>
-
-                </div>
-
-            </section>
-
-
-            <!-- Main Grid -->
-            <section class="content-grid">
-
-                <!-- Device Status -->
-                <div class="panel">
-
-                    <div class="panel-header">
-
-                        <h2>Device Status</h2>
-
-                        <button class="view-button" onclick="window.location.href='/devices'">
-                            View All
-                        </button>
-
-                    </div>
-
-
-                    <div class="device-list" id="device-list">
-                        <p>Devices Loading...</p>
-                    </div>
-
-                </div>
-
-
-                <!-- Security Events -->
-                <div class="panel">
-
-                    <div class="panel-header">
-
-                        <h2>Recent Security Events</h2>
-
-                        <button class="view-button" onclick="window.location.href='/security-events'">
-                            View All
-                        </button>
-
-                    </div>
-
-
-                    <div class="event-list" id="security-events-list">
-
-                        <div class="event">
-
-                            <div>
-
-                                <strong>
-                                    Loading...
-                                </strong>
-
-                                <p>
-                                    Loading security events...
-                                </p>
-
-                            </div>
-
-                            <span class="badge normal">
-                                Loading
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-
-            <!-- Network Activity -->
-            <section class="panel network-panel">
-
-                <div class="panel-header">
-
-                    <div>
-                        <h2>Network Activity</h2>
-                        <p>IoT network communication overview</p>
-                    </div>
-
-                </div>
-
-                <div class="network-placeholder">
-
-                    <div class="activity-bar bar-1"></div>
-                    <div class="activity-bar bar-2"></div>
-                    <div class="activity-bar bar-3"></div>
-                    <div class="activity-bar bar-4"></div>
-                    <div class="activity-bar bar-5"></div>
-                    <div class="activity-bar bar-6"></div>
-                    <div class="activity-bar bar-7"></div>
-                    <div class="activity-bar bar-8"></div>
-
-                </div>
-
-            </section>
-
-
-        </main>
-
+                <span class="badge normal"> Loading </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sensor Monitoring -->
+
+        <div class="panel sensor-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Sensor Monitoring</h2>
+              <p class="panel-subtitle">Latest IoT sensor readings</p>
+            </div>
+
+            <span class="live-indicator">
+              <span class="live-dot"></span>
+              Live
+            </span>
+          </div>
+
+          <div class="sensor-grid">
+            <!-- Temperature -->
+
+            <div class="sensor-card">
+              <div class="sensor-icon">🌡️</div>
+
+              <div class="sensor-info">
+                <span class="sensor-label"> Temperature </span>
+
+                <strong id="temperature-value"> -- </strong>
+
+                <span class="sensor-unit"> °C </span>
+              </div>
+            </div>
+
+            <!-- Humidity -->
+
+            <div class="sensor-card">
+              <div class="sensor-icon">💧</div>
+
+              <div class="sensor-info">
+                <span class="sensor-label"> Humidity </span>
+
+                <strong id="humidity-value"> -- </strong>
+
+                <span class="sensor-unit"> % </span>
+              </div>
+            </div>
+
+            <!-- Motion -->
+
+            <div class="sensor-card">
+              <div class="sensor-icon">📡</div>
+
+              <div class="sensor-info">
+                <span class="sensor-label"> Motion </span>
+
+                <strong id="motion-value"> -- </strong>
+              </div>
+            </div>
+
+            <!-- Device -->
+
+            <div class="sensor-card">
+              <div class="sensor-icon">📱</div>
+
+              <div class="sensor-info">
+                <span class="sensor-label"> Device </span>
+
+                <strong id="sensor-device"> -- </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network Activity -->
+        <section class="panel network-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Network Activity</h2>
+              <p>IoT network communication overview</p>
+            </div>
+          </div>
+
+          <div class="network-placeholder">
+            <div class="activity-bar bar-1"></div>
+            <div class="activity-bar bar-2"></div>
+            <div class="activity-bar bar-3"></div>
+            <div class="activity-bar bar-4"></div>
+            <div class="activity-bar bar-5"></div>
+            <div class="activity-bar bar-6"></div>
+            <div class="activity-bar bar-7"></div>
+            <div class="activity-bar bar-8"></div>
+          </div>
+        </section>
+      </main>
     </div>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-</body>
-
+  </body>
 </html>

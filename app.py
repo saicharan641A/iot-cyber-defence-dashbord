@@ -5,6 +5,7 @@ from database import (
     insert_sample_events,
     get_connection
 )
+from mqtt_handler import start_mqtt
 
 
 app = Flask(__name__)
@@ -93,5 +94,28 @@ def settings():
     return render_template("settings.html")
 
 
+@app.route("/api/sensor-data")
+def get_sensor_data():
+
+    connection = get_connection()
+
+    sensor_data = connection.execute("""
+        SELECT *
+        FROM sensor_data
+        ORDER BY id DESC
+        LIMIT 20
+    """).fetchall()
+
+    connection.close()
+
+    return jsonify([
+        dict(row)
+        for row in sensor_data
+    ])
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    start_mqtt()
+    app.run(
+        debug=True,
+        use_reloader=False
+    )

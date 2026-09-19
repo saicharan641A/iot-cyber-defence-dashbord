@@ -249,6 +249,108 @@ function displayRecentEvents(events) {
 
 }
 
+//Load Sensor Data
+async function loadSensorData() {
+
+    try {
+
+        const response =
+            await fetch("/api/sensor-data");
+
+
+        if (!response.ok) {
+            throw new Error(
+                "Failed to load sensor data"
+            );
+        }
+
+
+        const sensorData =
+            await response.json();
+
+
+        console.log(
+            "Sensor Data:",
+            sensorData
+        );
+
+
+        if (sensorData.length === 0) {
+            return;
+        }
+
+
+        // Latest record
+
+        const latest =
+            sensorData[0];
+
+
+        // Temperature
+
+        if (
+            latest.temperature !== null &&
+            latest.temperature !== undefined
+        ) {
+
+            document.getElementById(
+                "temperature-value"
+            ).textContent =
+                latest.temperature;
+
+        }
+
+
+        // Humidity
+
+        if (
+            latest.humidity !== null &&
+            latest.humidity !== undefined
+        ) {
+
+            document.getElementById(
+                "humidity-value"
+            ).textContent =
+                latest.humidity;
+
+        }
+
+
+        // Motion
+
+        const motionText =
+            latest.motion === 1
+                ? "Detected"
+                : "None";
+
+
+        document.getElementById(
+            "motion-value"
+        ).textContent =
+            motionText;
+
+
+        // Device
+
+        document.getElementById(
+            "sensor-device"
+        ).textContent =
+            latest.device_id;
+
+
+    } catch (error) {
+
+        console.error(
+            "Error loading sensor data:",
+            error
+        );
+
+    }
+
+}
 
 // START DASHBOARD
 loadDashboardData();
+loadSensorData();
+
+setInterval(loadSensorData, 5000);
