@@ -1,152 +1,117 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Security Events - IoT Defense</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
 
-<body>
-
+  <body>
     <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <h2>IoT Defense</h2>
+          <p>Cyber Security</p>
+        </div>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <nav>
+          <a href="/">Dashboard</a>
+          <a href="/devices">Devices</a>
+          <a href="/security-events" class="active"> Security Events </a>
+          <a href="/reports">Reports</a>
+          <a href="/settings">Settings</a>
+        </nav>
+      </aside>
 
-            <div class="logo">
-                <h2>IoT Defense</h2>
-                <p>Cyber Security</p>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <div class="page-header">
+          <div>
+            <h1>Security Events</h1>
+            <p>Monitor security activity detected in your IoT network</p>
+          </div>
+
+          <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+          <div class="summary-card">
+            <span>Total Events</span>
+
+            <h2 id="total-events">0</h2>
+
+            <p>Security events detected</p>
+          </div>
+
+          <div class="summary-card">
+            <span>Suspicious Events</span>
+
+            <h2 id="suspicious-events">0</h2>
+
+            <p>Requires attention</p>
+          </div>
+
+          <div class="summary-card">
+            <span>Normal Events</span>
+
+            <h2 id="normal-events">0</h2>
+
+            <p>Normal network activity</p>
+          </div>
+        </div>
+
+        <!-- Events Table -->
+        <div class="events-section">
+          <div class="events-header">
+            <div>
+              <h2>Detected Security Events</h2>
+
+              <p>Recent activity identified by the security system</p>
             </div>
 
-            <nav>
-                <a href="/">Dashboard</a>
-                <a href="/devices">Devices</a>
-                <a href="/security-events" class="active">
-                    Security Events
-                </a>
-                <a href="/reports">Reports</a>
-                <a href="/settings">Settings</a>
-            </nav>
+            <button class="refresh-button" onclick="loadSecurityEvents()">
+              ↻ Refresh
+            </button>
+          </div>
 
-        </aside>
+          <div class="events-table-container">
+            <table class="events-table">
+              <thead>
+                <tr>
+                  <th>Device ID</th>
+                  <th>Event Type</th>
+                  <th>Prediction</th>
+                  <th>Confidence</th>
+                  <th>Action</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
 
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <!-- Header -->
-            <div class="page-header">
-
-                <div>
-                    <h1>Security Events</h1>
-                    <p>Monitor security activity detected in your IoT network</p>
-                </div>
-
-                <div class="system-status">
-                    <span class="status-dot"></span>
-                    System Online
-                </div>
-
-            </div>
-
-
-            <!-- Summary Cards -->
-            <div class="summary-cards">
-
-                <div class="summary-card">
-                    <span>Total Events</span>
-
-                    <h2 id="total-events">0</h2>
-
-                    <p>Security events detected</p>
-                </div>
-
-
-                <div class="summary-card">
-                    <span>Suspicious Events</span>
-
-                    <h2 id="suspicious-events">0</h2>
-
-                    <p>Requires attention</p>
-                </div>
-
-
-                <div class="summary-card">
-                    <span>Normal Events</span>
-
-                    <h2 id="normal-events">0</h2>
-
-                    <p>Normal network activity</p>
-                </div>
-
-            </div>
-
-
-            <!-- Events Table -->
-            <div class="events-section">
-
-                <div class="events-header">
-
-                    <div>
-                        <h2>Detected Security Events</h2>
-
-                        <p>
-                            Recent activity identified by the security system
-                        </p>
-                    </div>
-
-                    <button class="refresh-button" onclick="loadSecurityEvents()">
-                        ↻ Refresh
-                    </button>
-
-                </div>
-
-
-                <div class="events-table-container">
-
-                    <table class="events-table">
-
-                        <thead>
-
-                            <tr>
-                                <th>Device ID</th>
-                                <th>Event Type</th>
-                                <th>Prediction</th>
-                                <th>Confidence</th>
-                                <th>Action</th>
-                                <th>Time</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="events-table-body">
-
-                            <tr>
-                                <td colspan="6" class="loading-cell">
-                                    Loading security events...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </main>
-
+              <tbody id="events-table-body">
+                <tr>
+                  <td colspan="6" class="loading-cell">
+                    Loading security events...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </div>
 
-
     <script src="{{ url_for('static', filename='js/events.js') }}"></script>
-
-</body>
-
+  </body>
 </html>

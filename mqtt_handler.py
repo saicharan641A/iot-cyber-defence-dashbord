@@ -1,10 +1,13 @@
 import json
 import threading
+import time
 from datetime import datetime
 
 import paho.mqtt.client as mqtt
 
 from database import get_connection
+from security_rules import (check_unknown_device, check_abnormal_temperature, 
+                            check_invalid_sensor_data, check_message_rate)
 
 
 # MQTT SETTINGS
@@ -13,6 +16,13 @@ MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
 
 MQTT_TOPIC = "iot/esp32/+/sensor"
+
+#Message Rate Tracker
+message_tracker = {}
+
+#Device Block
+blocked_devices = {}
+BLOCK_DURATION = 60
 
 
 # WHEN MQTT CONNECTS
@@ -34,11 +44,9 @@ def on_connect(client, userdata, flags, reason_code, properties):
 def on_message(client, userdata, message):
 
     try:
-
-        # Get topic
+        # GET MQTT MESSAGE
         topic = message.topic
 
-        # Get message payload
         payload = message.payload.decode("utf-8")
 
         print("\n----------------------------------------")
@@ -47,17 +55,7 @@ def on_message(client, userdata, message):
         print("Message:", payload)
 
 
-        # ==================================
         # GET DEVICE ID FROM TOPIC
-        # ==================================
-
-        # Example topic:
-        #
-        # iot/esp32/01/sensor
-        #
-        # Split:
-        #
-        # ["iot", "esp32", "01", "sensor"]
 
         topic_parts = topic.split("/")
 
@@ -72,12 +70,22 @@ def on_message(client, userdata, message):
         device_id = f"ESP32_{device_number}"
 
         print("Device:", device_id)
+        
+        current_time = time.time()
 
+        if device_id in blocked_devices:
+            blocked_until = blocked_devices[device_id]
+
+            if current_time < blocked_until:
+                print("SECURITY BLOCK")
+                print("Device is temporarily blocked:", device_id)
+                print("Message rejected")
+                return
+            else:
+                del blocked_devices[device_id]
 
         # CONVERT JSON MESSAGE
-
         data = json.loads(payload)
-
 
         temperature = data.get("temperature")
         humidity = data.get("humidity")
@@ -87,11 +95,223 @@ def on_message(client, userdata, message):
         print("Temperature:", temperature)
         print("Humidity:", humidity)
         print("Motion:", motion)
+        
+        #RULE 4
+        # MQTT MESSAGE RATE TRACKING
+        
+        current_time = time.time()
+        
+        if device_id not in message_tracker:
+            message_tracker[device_id] = []
+        
+        message_tracker[device_id].append(current_time)
+        
+        #Keep only message from the last 10 seconds
+        
+        message_tracker[device_id] = [
+            timestamp
+            for timestamp in message_tracker[device_id]
+            if current_time - timestamp <=10
+        ]
+        
+        message_count = len(message_tracker[device_id])
+        print("Messages from", device_id, "in last 10 seconds:", message_count)
+        
+        # CHECK MESSAGE RATE
+        rate_result = check_message_rate(message_count)
+        
+        if rate_result["is_suspicious"]:
+        
+            print("----------------------------------------")
+            print("SECURITY ALERT")
+            print("Device:", device_id)
+            print("Event:", rate_result["event_type"])
+            print("Message count:", message_count)
+            print("Prediction:", rate_result["prediction"])
+            print("Action:", rate_result["action"])
+            print("----------------------------------------")
+           
+            blocked_devices[device_id] = time.time() + BLOCK_DURATION
+            print("SECURITY BLOCK")
+            print("Device blocked for", BLOCK_DURATION, "seconds:", device_id)
+        
+            connection = get_connection()
+            connection.execute(
+                """
+                INSERT INTO security_events
+                (
+                    device_id,
+                    event_type,
+                    prediction,
+                    confidence,
+                    action,
+                    timestamp
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    device_id,
+                    rate_result["event_type"],
+                    rate_result["prediction"],
+                    rate_result["confidence"],
+                    rate_result["action"],
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                )
+            )
+        
+            connection.commit()
+            connection.close()
+        
+            print("Security event was stored successfully!")
+            return
+        
+        #RULE 3
+        #INVALID SENSOR DATA DETECTION
+        invalid_data_result = check_invalid_sensor_data(data)
+
+        if invalid_data_result["is_suspicious"]:
+
+            print("----------------------------------------")
+            print("SECURITY ALERT")
+            print("Device:", device_id)
+            print("Event:", invalid_data_result["event_type"])
+            print("Prediction:", invalid_data_result["prediction"])
+            print("Action:", invalid_data_result["action"])
+            print("----------------------------------------")
+
+            connection = get_connection()
+
+            connection.execute(
+                """
+                INSERT INTO security_events
+                (
+                    device_id,
+                    event_type,
+                    prediction,
+                    confidence,
+                    action,
+                    timestamp
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    device_id,
+                    invalid_data_result["event_type"],
+                    invalid_data_result["prediction"],
+                    invalid_data_result["confidence"],
+                    invalid_data_result["action"],
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                )
+            )
+
+            connection.commit()
+            connection.close()
+
+            print("Security event was stored successfully!")
+            return
 
 
-        # SAVE DATA TO DATABASE
+        # RULE 1
+        # UNKNOWN DEVICE DETECTION
+
+        security_result = check_unknown_device(device_id)
+
+        if security_result["is_suspicious"]:
+
+            print("----------------------------------------")
+            print("SECURITY EVENT DETECTED")
+            print("Device:", device_id)
+            print("Event:", security_result["event_type"])
+            print("Prediction:", security_result["prediction"])
+            print("Action:", security_result["action"])
+            print("----------------------------------------")
+
+
+            connection = get_connection()
+
+            connection.execute(
+                """
+                INSERT INTO security_events
+                (
+                    device_id,
+                    event_type,
+                    prediction,
+                    confidence,
+                    action,
+                    timestamp
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    device_id,
+                    security_result["event_type"],
+                    security_result["prediction"],
+                    security_result["confidence"],
+                    security_result["action"],
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                )
+            )
+
+            connection.commit()
+            connection.close()
+
+            print("Security event was stored successfully!")
+
+
+        # RULE 2
+        # ABNORMAL TEMPERATURE DETECTION
+
+        temperature_result = check_abnormal_temperature(
+            temperature
+        )
+
+        if temperature_result["is_suspicious"]:
+
+            print("----------------------------------------")
+            print("SECURITY ALERT")
+            print(
+                "Abnormal temperature detected:",
+                temperature
+            )
+            print("Device:", device_id)
+            print("Event:", temperature_result["event_type"])
+            print("Prediction:", temperature_result["prediction"])
+            print("Action:", temperature_result["action"])
+            print("----------------------------------------")
+
+
+            connection = get_connection()
+
+            connection.execute(
+                """
+                INSERT INTO security_events
+                (
+                    device_id,
+                    event_type,
+                    prediction,
+                    confidence,
+                    action,
+                    timestamp
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    device_id,
+                    temperature_result["event_type"],
+                    temperature_result["prediction"],
+                    temperature_result["confidence"],
+                    temperature_result["action"],
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                )
+            )
+
+            connection.commit()
+            connection.close()
+
+            print("Security event was stored successfully!")
+
+        # SAVE SENSOR DATA
         connection = get_connection()
-
 
         connection.execute(
             """
@@ -114,9 +334,7 @@ def on_message(client, userdata, message):
             )
         )
 
-
-        # Update device status and last seen time
-
+        # UPDATE DEVICE STATUS
         connection.execute(
             """
             UPDATE devices
@@ -132,7 +350,6 @@ def on_message(client, userdata, message):
 
 
         connection.commit()
-
         connection.close()
 
 

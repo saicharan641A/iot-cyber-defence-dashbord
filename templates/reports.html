@@ -1,128 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Reports - IoT Defense</title>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
 
-<body>
-
+  <body>
     <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <h2>IoT Defense</h2>
+          <p>Cyber Security</p>
+        </div>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <nav>
+          <a href="/">Dashboard</a>
+          <a href="/devices">Devices</a>
+          <a href="/security-events">Security Events</a>
+          <a href="/reports" class="active">Reports</a>
+          <a href="/settings">Settings</a>
+        </nav>
+      </aside>
 
-            <div class="logo">
-                <h2>IoT Defense</h2>
-                <p>Cyber Security</p>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="page-header">
+          <div>
+            <h1>Security Reports</h1>
+            <p>Overview of IoT network security activity</p>
+          </div>
+
+          <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+          <div class="summary-card">
+            <span>Total Events</span>
+            <h2 id="total-events">0</h2>
+            <p>Detected security events</p>
+          </div>
+
+          <div class="summary-card">
+            <span>Suspicious Events</span>
+            <h2 id="suspicious-events">0</h2>
+            <p>Requires attention</p>
+          </div>
+
+          <div class="summary-card">
+            <span>Normal Events</span>
+            <h2 id="normal-events">0</h2>
+            <p>Normal network activity</p>
+          </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="report-section">
+          <div class="section-header">
+            <div>
+              <h2>Security Activity</h2>
+              <p>Recent security events detected in the network</p>
             </div>
+          </div>
 
-            <nav>
-                <a href="/">Dashboard</a>
-                <a href="/devices">Devices</a>
-                <a href="/security-events">Security Events</a>
-                <a href="/reports" class="active">Reports</a>
-                <a href="/settings">Settings</a>
-            </nav>
+          <div class="report-table-container">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Device ID</th>
+                  <th>Event Type</th>
+                  <th>Prediction</th>
+                  <th>Confidence</th>
+                  <th>Action</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
 
-        </aside>
-
-
-        <!-- Main Content -->
-        <main class="main-content">
-
-            <div class="page-header">
-
-                <div>
-                    <h1>Security Reports</h1>
-                    <p>Overview of IoT network security activity</p>
-                </div>
-
-                <div class="system-status">
-                    <span class="status-dot"></span>
-                    System Online
-                </div>
-
-            </div>
-
-
-            <!-- Summary Cards -->
-            <div class="summary-cards">
-
-                <div class="summary-card">
-                    <span>Total Events</span>
-                    <h2 id="total-events">0</h2>
-                    <p>Detected security events</p>
-                </div>
-
-                <div class="summary-card">
-                    <span>Suspicious Events</span>
-                    <h2 id="suspicious-events">0</h2>
-                    <p>Requires attention</p>
-                </div>
-
-                <div class="summary-card">
-                    <span>Normal Events</span>
-                    <h2 id="normal-events">0</h2>
-                    <p>Normal network activity</p>
-                </div>
-
-            </div>
-
-
-            <!-- Report Section -->
-            <div class="report-section">
-
-                <div class="section-header">
-                    <div>
-                        <h2>Security Activity</h2>
-                        <p>Recent security events detected in the network</p>
-                    </div>
-                </div>
-
-                <div class="report-table-container">
-
-                    <table class="report-table">
-
-                        <thead>
-                            <tr>
-                                <th>Device ID</th>
-                                <th>Event Type</th>
-                                <th>Prediction</th>
-                                <th>Confidence</th>
-                                <th>Action</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="reports-table-body">
-
-                            <tr>
-                                <td colspan="6">
-                                    Loading reports...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </main>
-
+              <tbody id="reports-table-body">
+                <tr>
+                  <td colspan="6">Loading reports...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
     </div>
 
-
     <script src="{{ url_for('static', filename='js/reports.js') }}"></script>
-
-</body>
-
+  </body>
 </html>

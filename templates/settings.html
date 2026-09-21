@@ -1,285 +1,205 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Settings - IoT Defense</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
 
-<body>
-
-<div class="app-container">
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
-
+  <body>
+    <div class="app-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
         <div class="logo">
-            <h2>IoT Defense</h2>
-            <p>Cyber Security</p>
+          <h2>IoT Defense</h2>
+          <p>Cyber Security</p>
         </div>
 
         <nav>
-            <a href="/">Dashboard</a>
-            <a href="/devices">Devices</a>
-            <a href="/security-events">Security Events</a>
-            <a href="/reports">Reports</a>
-            <a href="/settings" class="active">Settings</a>
+          <a href="/">Dashboard</a>
+          <a href="/devices">Devices</a>
+          <a href="/security-events">Security Events</a>
+          <a href="/reports">Reports</a>
+          <a href="/settings" class="active">Settings</a>
         </nav>
+      </aside>
 
-    </aside>
-
-
-    <!-- Main Content -->
-    <main class="main-content">
-
+      <!-- Main Content -->
+      <main class="main-content">
         <!-- Header -->
         <div class="page-header">
+          <div>
+            <h1>Settings</h1>
+            <p>Configure your IoT security system</p>
+          </div>
 
-            <div>
-                <h1>Settings</h1>
-                <p>Configure your IoT security system</p>
-            </div>
-
-            <div class="system-status">
-                <span class="status-dot"></span>
-                System Online
-            </div>
-
+          <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+          </div>
         </div>
-
 
         <!-- Settings Grid -->
         <div class="settings-grid">
-
-
-            <!-- System Settings -->
-            <div class="settings-card">
-
-                <div class="settings-card-header">
-                    <div>
-                        <h2>System Settings</h2>
-                        <p>Basic system configuration</p>
-                    </div>
-                </div>
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>System Name</strong>
-                        <span>Name displayed on the dashboard</span>
-                    </div>
-
-                    <input
-                        type="text"
-                        value="IoT Defense"
-                        id="system-name"
-                    >
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>System Status</strong>
-                        <span>Current security system status</span>
-                    </div>
-
-                    <span class="setting-status online">
-                        ● Online
-                    </span>
-
-                </div>
-
+          <!-- System Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>System Settings</h2>
+                <p>Basic system configuration</p>
+              </div>
             </div>
 
+            <div class="setting-row">
+              <div>
+                <strong>System Name</strong>
+                <span>Name displayed on the dashboard</span>
+              </div>
 
-            <!-- Alert Settings -->
-            <div class="settings-card">
-
-                <div class="settings-card-header">
-
-                    <div>
-                        <h2>Alert Settings</h2>
-                        <p>Security notification preferences</p>
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>Security Alerts</strong>
-                        <span>Receive alerts for suspicious activity</span>
-                    </div>
-
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>High Confidence Alerts</strong>
-                        <span>Alert when AI confidence is high</span>
-                    </div>
-
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-
-                </div>
-
+              <input type="text" value="IoT Defense" id="system-name" />
             </div>
 
+            <div class="setting-row">
+              <div>
+                <strong>System Status</strong>
+                <span>Current security system status</span>
+              </div>
 
-            <!-- Security Settings -->
-            <div class="settings-card">
+              <span class="setting-status online"> ● Online </span>
+            </div>
+          </div>
 
-                <div class="settings-card-header">
-
-                    <div>
-                        <h2>Security Settings</h2>
-                        <p>AI detection configuration</p>
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>AI Detection</strong>
-                        <span>Enable AI-based anomaly detection</span>
-                    </div>
-
-                    <label class="switch">
-                        <input type="checkbox" checked>
-                        <span class="slider"></span>
-                    </label>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>Automatic Response</strong>
-                        <span>Enable automated security response</span>
-                    </div>
-
-                    <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
-                    </label>
-
-                </div>
-
+          <!-- Alert Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Alert Settings</h2>
+                <p>Security notification preferences</p>
+              </div>
             </div>
 
+            <div class="setting-row">
+              <div>
+                <strong>Security Alerts</strong>
+                <span>Receive alerts for suspicious activity</span>
+              </div>
 
-            <!-- Network Settings -->
-            <div class="settings-card">
-
-                <div class="settings-card-header">
-
-                    <div>
-                        <h2>Network Settings</h2>
-                        <p>IoT network configuration</p>
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>MQTT Broker</strong>
-                        <span>MQTT communication endpoint</span>
-                    </div>
-
-                    <span class="setting-value">
-                        Not Connected
-                    </span>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>Network Status</strong>
-                        <span>Current IoT network connection</span>
-                    </div>
-
-                    <span class="setting-status online">
-                        ● Connected
-                    </span>
-
-                </div>
-
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
             </div>
 
+            <div class="setting-row">
+              <div>
+                <strong>High Confidence Alerts</strong>
+                <span>Alert when AI confidence is high</span>
+              </div>
 
-            <!-- Database Settings -->
-            <div class="settings-card">
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
 
-                <div class="settings-card-header">
-
-                    <div>
-                        <h2>Database</h2>
-                        <p>Security database information</p>
-                    </div>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>Database</strong>
-                        <span>Local security database</span>
-                    </div>
-
-                    <span class="setting-status online">
-                        ● Connected
-                    </span>
-
-                </div>
-
-
-                <div class="setting-row">
-
-                    <div>
-                        <strong>Database Type</strong>
-                        <span>Current database engine</span>
-                    </div>
-
-                    <span class="setting-value">
-                        SQLite
-                    </span>
-
-                </div>
-
+          <!-- Security Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Security Settings</h2>
+                <p>AI detection configuration</p>
+              </div>
             </div>
 
+            <div class="setting-row">
+              <div>
+                <strong>AI Detection</strong>
+                <span>Enable AI-based anomaly detection</span>
+              </div>
 
+              <label class="switch">
+                <input type="checkbox" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Automatic Response</strong>
+                <span>Enable automated security response</span>
+              </div>
+
+              <label class="switch">
+                <input type="checkbox" />
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Network Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Network Settings</h2>
+                <p>IoT network configuration</p>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>MQTT Broker</strong>
+                <span>MQTT communication endpoint</span>
+              </div>
+
+              <span class="setting-value"> Not Connected </span>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Network Status</strong>
+                <span>Current IoT network connection</span>
+              </div>
+
+              <span class="setting-status online"> ● Connected </span>
+            </div>
+          </div>
+
+          <!-- Database Settings -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Database</h2>
+                <p>Security database information</p>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Database</strong>
+                <span>Local security database</span>
+              </div>
+
+              <span class="setting-status online"> ● Connected </span>
+            </div>
+
+            <div class="setting-row">
+              <div>
+                <strong>Database Type</strong>
+                <span>Current database engine</span>
+              </div>
+
+              <span class="setting-value"> SQLite </span>
+            </div>
+          </div>
         </div>
-
-    </main>
-
-</div>
-
-</body>
+      </main>
+    </div>
+  </body>
 </html>

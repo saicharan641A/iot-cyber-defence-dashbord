@@ -113,6 +113,18 @@ def insert_sample_events():
 
     connection = get_connection()
     cursor = connection.cursor()
+    
+    result = cursor.execute(
+        """
+        SELECT COUNT(*)
+        FROM security_events
+        """
+    ).fetchone()
+    
+    event_count = result[0]
+    if event_count > 0:
+        connection.close()
+        return
 
     events = [
         (
