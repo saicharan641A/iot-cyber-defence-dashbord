@@ -261,4 +261,4 @@ loadDashboardData();
 loadSensorData();
 
 setInterval(loadSensorData, 5000);
-setInterval(loadDashboardData, 5000)
+setInterval(loadDashboardData, 5000);

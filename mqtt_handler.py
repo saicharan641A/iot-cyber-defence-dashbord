@@ -283,6 +283,7 @@ def on_message(client, userdata, message):
             connection.close()
 
             print("Security event was stored successfully!")
+            return
 
 
         # RULE 2

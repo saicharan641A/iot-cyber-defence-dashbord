@@ -23,11 +23,17 @@ function updateSummary(devices) {
     (device) => device.status === "Suspicious",
   ).length;
 
+  const blocked = devices.filter(
+    (devices) => devices.status == "Blocked",
+  ).length;
+
   document.getElementById("total-devices").textContent = total;
 
   document.getElementById("online-devices").textContent = online;
 
   document.getElementById("suspicious-devices").textContent = suspicious;
+
+  document.getElementById("blocked-devices").textContent = blocked;
 }
 
 function displayDevices(devices) {
@@ -87,3 +93,4 @@ function displayDevices(devices) {
 }
 
 loadDevices();
+setInterval(loadDevices, 5000);
