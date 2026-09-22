@@ -1,80 +1,54 @@
 async function loadDevices() {
+  try {
+    const response = await fetch("/api/devices");
 
-    try {
+    const devices = await response.json();
 
-        const response = await fetch("/api/devices");
+    console.log("Devices:", devices);
 
-        const devices = await response.json();
+    updateSummary(devices);
 
-        console.log("Devices:", devices);
-
-        updateSummary(devices);
-
-        displayDevices(devices);
-
-    } catch (error) {
-
-        console.error("Error loading devices:", error);
-
-    }
-
+    displayDevices(devices);
+  } catch (error) {
+    console.error("Error loading devices:", error);
+  }
 }
-
 
 function updateSummary(devices) {
+  const total = devices.length;
 
-    const total = devices.length;
+  const online = devices.filter((device) => device.status === "Online").length;
 
-    const online = devices.filter(
-        device => device.status === "Online"
-    ).length;
+  const suspicious = devices.filter(
+    (device) => device.status === "Suspicious",
+  ).length;
 
-    const suspicious = devices.filter(
-        device => device.status === "Suspicious"
-    ).length;
+  document.getElementById("total-devices").textContent = total;
 
+  document.getElementById("online-devices").textContent = online;
 
-    document.getElementById(
-        "total-devices"
-    ).textContent = total;
-
-
-    document.getElementById(
-        "online-devices"
-    ).textContent = online;
-
-
-    document.getElementById(
-        "suspicious-devices"
-    ).textContent = suspicious;
-
+  document.getElementById("suspicious-devices").textContent = suspicious;
 }
 
-
 function displayDevices(devices) {
+  const tableBody = document.getElementById("devices-table-body");
 
-    const tableBody =
-        document.getElementById(
-            "devices-table-body"
-        );
+  tableBody.innerHTML = "";
 
-    tableBody.innerHTML = "";
+  devices.forEach((device) => {
+    const row = document.createElement("tr");
 
+    let badgeClass = "normal";
 
-    devices.forEach(device => {
+    if (device.status === "Suspicious") {
+      badgeClass = "suspicious";
+    }
 
-        const row =
-            document.createElement("tr");
+    if (device.status === "Blocked") {
+      badgeClass = "blocked";
+    }
 
-
-        let badgeClass = "normal";
-
-        if (device.status === "Suspicious") {
-            badgeClass = "suspicious";
-        }
-
-
-        row.innerHTML = `
+    row.innerHTML = `
 
             <td>
                 <strong>
@@ -108,12 +82,8 @@ function displayDevices(devices) {
 
         `;
 
-
-        tableBody.appendChild(row);
-
-    });
-
+    tableBody.appendChild(row);
+  });
 }
-
 
 loadDevices();

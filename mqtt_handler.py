@@ -24,6 +24,26 @@ message_tracker = {}
 blocked_devices = {}
 BLOCK_DURATION = 60
 
+def unblock_expired_devices():
+    while True:
+        current_time = time.time()
+        for device_id, blocked_until in list(blocked_devices.items()):
+            if current_time >= blocked_until:
+                del blocked_devices[device_id]
+                connection = get_connection()
+                connection.execute(
+                    """
+                    UPDATE devices
+                    SET status = 'Online'
+                    WHERE device_id = ?
+                    """,
+                    (device_id,)
+                )
+                connection.commit()
+                connection.close()
+                print("SECURITY BLOCK EXPIRED")
+                print("Device automatically unblocked:", device_id)
+
 
 # WHEN MQTT CONNECTS
 
@@ -71,19 +91,14 @@ def on_message(client, userdata, message):
 
         print("Device:", device_id)
         
-        current_time = time.time()
-
+        # CHECK IF DEVICE IS CURRENTLY BLOCKED
         if device_id in blocked_devices:
-            blocked_until = blocked_devices[device_id]
 
-            if current_time < blocked_until:
-                print("SECURITY BLOCK")
-                print("Device is temporarily blocked:", device_id)
-                print("Message rejected")
-                return
-            else:
-                del blocked_devices[device_id]
-
+            print("SECURITY BLOCK")
+            print("Device is temporarily blocked:", device_id)
+            print("Message rejected")
+            return
+        
         # CONVERT JSON MESSAGE
         data = json.loads(payload)
 
@@ -134,6 +149,19 @@ def on_message(client, userdata, message):
             blocked_devices[device_id] = time.time() + BLOCK_DURATION
             print("SECURITY BLOCK")
             print("Device blocked for", BLOCK_DURATION, "seconds:", device_id)
+            
+            connection = get_connection()
+
+            connection.execute(
+                """
+                UPDATE devices
+                SET status = 'Blocked'
+                WHERE device_id = ?
+                """,
+                (device_id,)
+            )
+            connection.commit()
+            connection.close()
         
             connection = get_connection()
             connection.execute(
@@ -180,7 +208,6 @@ def on_message(client, userdata, message):
             print("----------------------------------------")
 
             connection = get_connection()
-
             connection.execute(
                 """
                 INSERT INTO security_events
@@ -402,6 +429,11 @@ def start_mqtt():
 
 
         print("MQTT background thread started")
+        
+        threading.Thread(
+            target=unblock_expired_devices,
+            daemon=True
+        ).start()
 
 
     except Exception as error:

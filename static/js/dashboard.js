@@ -1,120 +1,107 @@
 async function loadDashboardData() {
+  try {
+    // LOAD DEVICES
 
-    try {
+    const deviceResponse = await fetch("/api/devices");
 
-        // LOAD DEVICES
-
-        const deviceResponse = await fetch("/api/devices");
-
-        if (!deviceResponse.ok) {
-            throw new Error("Failed to load devices");
-        }
-
-        const devices = await deviceResponse.json();
-
-        console.log("Devices:", devices);
-
-        updateDeviceSummary(devices);
-        displayDevices(devices);
-
-
-        // LOAD SECURITY EVENTS
-
-        const eventResponse = await fetch("/api/security-events");
-
-        if (!eventResponse.ok) {
-            throw new Error("Failed to load security events");
-        }
-
-        const events = await eventResponse.json();
-
-        console.log("Security Events:", events);
-
-        displayRecentEvents(events);
-
-
-    } catch (error) {
-
-        console.error("Error loading dashboard data:", error);
-
+    if (!deviceResponse.ok) {
+      throw new Error("Failed to load devices");
     }
+
+    const devices = await deviceResponse.json();
+
+    console.log("Devices:", devices);
+
+    updateDeviceSummary(devices);
+    displayDevices(devices);
+
+    // LOAD SECURITY EVENTS
+
+    const eventResponse = await fetch("/api/security-events");
+
+    if (!eventResponse.ok) {
+      throw new Error("Failed to load security events");
+    }
+
+    const events = await eventResponse.json();
+
+    console.log("Security Events:", events);
+
+    displayRecentEvents(events);
+  } catch (error) {
+    console.error("Error loading dashboard data:", error);
+  }
 }
 
 // UPDATE DEVICE SUMMARY CARDS
 
 function updateDeviceSummary(devices) {
+  const total = devices.length;
 
-    const total = devices.length;
+  const online = devices.filter((device) => device.status === "Online").length;
 
-    const online = devices.filter(
-        device => device.status === "Online"
-    ).length;
+  const suspicious = devices.filter(
+    (device) => device.status === "Suspicious",
+  ).length;
 
-    const suspicious = devices.filter(
-        device => device.status === "Suspicious"
-    ).length;
+  const blocked = devices.filter(
+    (device) => device.status === "Blocked",
+  ).length;
 
+  const totalDevices = document.getElementById("total-devices");
 
-    const totalDevices =
-        document.getElementById("total-devices");
+  const onlineDevices = document.getElementById("online-devices");
 
-    const onlineDevices =
-        document.getElementById("online-devices");
+  const suspiciousDevices = document.getElementById("suspicious-devices");
+  const blockedDevices = document.getElementById("blocked-devices");
 
-    const suspiciousDevices =
-        document.getElementById("suspicious-devices");
+  if (totalDevices) {
+    totalDevices.textContent = total;
+  }
 
+  if (onlineDevices) {
+    onlineDevices.textContent = online;
+  }
 
-    if (totalDevices) {
-        totalDevices.textContent = total;
-    }
+  if (suspiciousDevices) {
+    suspiciousDevices.textContent = suspicious;
+  }
 
-    if (onlineDevices) {
-        onlineDevices.textContent = online;
-    }
-
-    if (suspiciousDevices) {
-        suspiciousDevices.textContent = suspicious;
-    }
-
+  if(blockedDevices) {
+    blockedDevices.textContent = blocked;
+  }
 }
-
 
 // DISPLAY DEVICES
 
 function displayDevices(devices) {
+  const deviceList = document.getElementById("device-list");
 
-    const deviceList =
-        document.getElementById("device-list");
+  // If dashboard does not have a device list,
+  // simply stop here.
 
+  if (!deviceList) {
+    return;
+  }
 
-    // If dashboard does not have a device list,
-    // simply stop here.
+  deviceList.innerHTML = "";
 
-    if (!deviceList) {
-        return;
+  devices.forEach((device) => {
+    const item = document.createElement("div");
+
+    item.className = "device-item";
+
+    let badgeClass = "normal";
+
+    if (device.status === "Suspicious") {
+      badgeClass = "suspicious";
     }
 
+    if (device.status === "Blocked") {
+      badgeClass = "blocked";
+    }
 
-    deviceList.innerHTML = "";
-
-
-    devices.forEach(device => {
-
-        const item =
-            document.createElement("div");
-
-
-        item.className = "device-item";
-
-
-        const badgeClass =
-            device.status === "Suspicious"
-                ? "suspicious"
-                : "normal";
-
-
-        item.innerHTML = `
+    item.innerHTML = `
 
             <div>
 
@@ -135,41 +122,30 @@ function displayDevices(devices) {
 
         `;
 
-
-        deviceList.appendChild(item);
-
-    });
-
+    deviceList.appendChild(item);
+  });
 }
 
 // DISPLAY RECENT SECURITY EVENTS
 
 function displayRecentEvents(events) {
+  const eventList = document.getElementById("security-events-list");
 
-    const eventList =
-        document.getElementById(
-            "security-events-list"
-        );
+  // If the container does not exist,
+  // stop here.
 
+  if (!eventList) {
+    return;
+  }
 
-    // If the container does not exist,
-    // stop here.
+  // Clear loading message
 
-    if (!eventList) {
-        return;
-    }
+  eventList.innerHTML = "";
 
+  // No events
 
-    // Clear loading message
-
-    eventList.innerHTML = "";
-
-
-    // No events
-
-    if (events.length === 0) {
-
-        eventList.innerHTML = `
+  if (events.length === 0) {
+    eventList.innerHTML = `
 
             <div class="event">
 
@@ -186,42 +162,28 @@ function displayRecentEvents(events) {
 
         `;
 
-        return;
-    }
+    return;
+  }
 
+  // Show only the latest 5 events
 
-    // Show only the latest 5 events
+  const recentEvents = events.slice(0, 5);
 
-    const recentEvents =
-        events.slice(0, 5);
+  recentEvents.forEach((event) => {
+    const item = document.createElement("div");
 
+    item.className = "event";
 
-    recentEvents.forEach(event => {
+    // Suspicious or Normal
 
-        const item =
-            document.createElement("div");
+    const badgeClass =
+      event.prediction === "Suspicious" ? "suspicious" : "normal";
 
+    // Badge text
 
-        item.className = "event";
+    const badgeText = event.prediction === "Suspicious" ? "Alert" : "Normal";
 
-
-        // Suspicious or Normal
-
-        const badgeClass =
-            event.prediction === "Suspicious"
-                ? "suspicious"
-                : "normal";
-
-
-        // Badge text
-
-        const badgeText =
-            event.prediction === "Suspicious"
-                ? "Alert"
-                : "Normal";
-
-
-        item.innerHTML = `
+    item.innerHTML = `
 
             <div>
 
@@ -242,111 +204,56 @@ function displayRecentEvents(events) {
 
         `;
 
-
-        eventList.appendChild(item);
-
-    });
-
+    eventList.appendChild(item);
+  });
 }
 
 //Load Sensor Data
 async function loadSensorData() {
+  try {
+    const response = await fetch("/api/sensor-data");
 
-    try {
-
-        const response =
-            await fetch("/api/sensor-data");
-
-
-        if (!response.ok) {
-            throw new Error(
-                "Failed to load sensor data"
-            );
-        }
-
-
-        const sensorData =
-            await response.json();
-
-
-        console.log(
-            "Sensor Data:",
-            sensorData
-        );
-
-
-        if (sensorData.length === 0) {
-            return;
-        }
-
-
-        // Latest record
-
-        const latest =
-            sensorData[0];
-
-
-        // Temperature
-
-        if (
-            latest.temperature !== null &&
-            latest.temperature !== undefined
-        ) {
-
-            document.getElementById(
-                "temperature-value"
-            ).textContent =
-                latest.temperature;
-
-        }
-
-
-        // Humidity
-
-        if (
-            latest.humidity !== null &&
-            latest.humidity !== undefined
-        ) {
-
-            document.getElementById(
-                "humidity-value"
-            ).textContent =
-                latest.humidity;
-
-        }
-
-
-        // Motion
-
-        const motionText =
-            latest.motion === 1
-                ? "Detected"
-                : "None";
-
-
-        document.getElementById(
-            "motion-value"
-        ).textContent =
-            motionText;
-
-
-        // Device
-
-        document.getElementById(
-            "sensor-device"
-        ).textContent =
-            latest.device_id;
-
-
-    } catch (error) {
-
-        console.error(
-            "Error loading sensor data:",
-            error
-        );
-
+    if (!response.ok) {
+      throw new Error("Failed to load sensor data");
     }
 
+    const sensorData = await response.json();
+
+    console.log("Sensor Data:", sensorData);
+
+    if (sensorData.length === 0) {
+      return;
+    }
+
+    // Latest record
+
+    const latest = sensorData[0];
+
+    // Temperature
+
+    if (latest.temperature !== null && latest.temperature !== undefined) {
+      document.getElementById("temperature-value").textContent =
+        latest.temperature;
+    }
+
+    // Humidity
+
+    if (latest.humidity !== null && latest.humidity !== undefined) {
+      document.getElementById("humidity-value").textContent = latest.humidity;
+    }
+
+    // Motion
+
+    const motionText = latest.motion === 1 ? "Detected" : "None";
+
+    document.getElementById("motion-value").textContent = motionText;
+
+    // Device
+
+    document.getElementById("sensor-device").textContent = latest.device_id;
+  } catch (error) {
+    console.error("Error loading sensor data:", error);
+  }
 }
 
 // START DASHBOARD
@@ -354,3 +261,4 @@ loadDashboardData();
 loadSensorData();
 
 setInterval(loadSensorData, 5000);
+setInterval(loadDashboardData, 5000)
