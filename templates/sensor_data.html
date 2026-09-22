@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Sensor Data - IoT Defense</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <h2>IoT Defense</h2>
+          <p>Cyber Security</p>
+        </div>
+
+        <nav>
+          <a href="/" class="nav-item"> Dashboard </a>
+          <a href="/devices" class="nav-item"> Devices </a>
+          <a href="/security-events" class="nav-item"> Security Events </a>
+          <a href="/sensor-data" class="nav-item active"> Sensor Data </a>
+          <a href="/settings" class="nav-item"> Settings </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+          <div>
+            <h1>Sensor Data</h1>
+            <p>Real-time IoT sensor readings and telemetry history</p>
+          </div>
+
+          <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+          </div>
+        </header>
+
+        <!-- Sensor Data Section -->
+        <section class="panel">
+          <div class="panel-header" style="flex-wrap: wrap; gap: 15px;">
+            <div>
+              <h2>Telemetry Records</h2>
+              <p class="panel-subtitle">Sensor data collected from connected devices</p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <label for="device-select" style="font-size: 14px; font-weight: 600; color: #4b5563;">
+                Device:
+              </label>
+
+              <select id="device-select" class="sensor-device-dropdown">
+                <option value="all">All Devices</option>
+              </select>
+
+              <span id="sensor-records-count" class="badge normal" style="font-size: 12px;">
+                0 Records
+              </span>
+
+              <button class="view-button" onclick="loadSensorDataRecords()" style="cursor: pointer;">
+                ↻ Refresh
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container" style="margin-top: 20px;">
+            <table class="device-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Device ID</th>
+                  <th>Temperature</th>
+                  <th>Humidity</th>
+                  <th>Motion</th>
+                </tr>
+              </thead>
+
+              <tbody id="sensor-data-table-body">
+                <tr>
+                  <td colspan="5" class="loading-cell">
+                    Loading sensor data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/sensor_data.js') }}"></script>
+  </body>
+</html>

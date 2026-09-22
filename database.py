@@ -1,3 +1,4 @@
+from datetime import datetime
 import sqlite3
 from pathlib import Path
 
@@ -52,12 +53,95 @@ def initialize_database():
             prediction TEXT,
             confidence REAL,
             action TEXT,
+            sensor_value REAL,
             timestamp TEXT
         )
     """)
 
+    # Safe schema migration: add sensor_value column if it doesn't already exist
+    cursor.execute("PRAGMA table_info(security_events)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "sensor_value" not in columns:
+        cursor.execute("ALTER TABLE security_events ADD COLUMN sensor_value REAL")
+
     connection.commit()
     connection.close()
+
+
+def record_security_event(device_id, event_type, prediction, confidence, action, sensor_value=None, timestamp=None):
+    if timestamp is None:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO security_events
+        (
+            device_id,
+            event_type,
+            prediction,
+            confidence,
+            action,
+            sensor_value,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (device_id, event_type, prediction, confidence, action, sensor_value, timestamp))
+
+    connection.commit()
+    connection.close()
+
+
+def record_sensor_data(device_id, temperature, humidity, motion, timestamp=None):
+    if timestamp is None:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO sensor_data
+        (
+            device_id,
+            temperature,
+            humidity,
+            motion,
+            timestamp
+        )
+        VALUES (?, ?, ?, ?, ?)
+    """, (device_id, temperature, humidity, motion, timestamp))
+
+    connection.commit()
+    connection.close()
+
+
+def update_device_status(device_id, status, last_seen=None):
+    if last_seen is None:
+        last_seen = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE devices
+        SET status = ?,
+            last_seen = ?
+        WHERE device_id = ?
+    """, (status, last_seen, device_id))
+
+    connection.commit()
+    connection.close()
+
+
+def get_device_by_id(device_id):
+    connection = get_connection()
+    device = connection.execute(
+        "SELECT * FROM devices WHERE device_id = ?",
+        (device_id,)
+    ).fetchone()
+    connection.close()
+    return device
     
 def insert_sample_devices():
 
@@ -86,7 +170,7 @@ def insert_sample_devices():
             "IoT Device",
             "ESP32",
             "192.168.1.103",
-            "Suspicious",
+            "Online",
             "2 minutes ago"
         )
     ]

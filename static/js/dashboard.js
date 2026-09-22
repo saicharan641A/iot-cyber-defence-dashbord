@@ -175,12 +175,10 @@ function displayRecentEvents(events) {
     item.className = "event";
 
     // Suspicious or Normal
-
     const badgeClass =
       event.prediction === "Suspicious" ? "suspicious" : "normal";
 
     // Badge text
-
     const badgeText = event.prediction === "Suspicious" ? "Alert" : "Normal";
 
     item.innerHTML = `
