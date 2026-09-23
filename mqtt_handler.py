@@ -9,7 +9,10 @@ from database import (
     get_connection,
     record_security_event,
     record_sensor_data,
-    update_device_status
+    record_sensor_readings,
+    get_device_sensors,
+    update_device_status,
+    get_setting
 )
 from security_rules import (
     check_unknown_device,
@@ -31,6 +34,15 @@ message_tracker = {}
 blocked_devices = {}
 BLOCK_DURATION = 60
 
+# MQTT Client and Connection Status
+mqtt_client = None
+mqtt_connected = False
+unblock_thread_started = False
+
+
+def is_mqtt_connected():
+    return mqtt_connected
+
 
 def unblock_expired_devices():
     while True:
@@ -50,14 +62,27 @@ def unblock_expired_devices():
 
 # WHEN MQTT CONNECTS
 def on_connect(client, userdata, flags, reason_code, properties):
+    global mqtt_connected
+    mqtt_connected = True
+    broker_host = get_setting("mqtt_broker_host", MQTT_BROKER)
+    broker_port = get_setting("mqtt_broker_port", MQTT_PORT)
+    topic = get_setting("mqtt_topic", MQTT_TOPIC)
+
     print("========================================")
     print("MQTT connected successfully")
-    print("MQTT Broker:", MQTT_BROKER)
-    print("MQTT Port:", MQTT_PORT)
+    print("MQTT Broker:", broker_host)
+    print("MQTT Port:", broker_port)
     print("========================================")
 
-    client.subscribe(MQTT_TOPIC)
-    print("Subscribed to:", MQTT_TOPIC)
+    client.subscribe(topic)
+    print("Subscribed to:", topic)
+
+
+# WHEN MQTT DISCONNECTS
+def on_disconnect(client, userdata, disconnect_flags, reason_code, properties=None):
+    global mqtt_connected
+    mqtt_connected = False
+    print("MQTT disconnected (reason code:", reason_code, ")")
 
 
 # WHEN A MESSAGE ARRIVES
@@ -109,38 +134,43 @@ def on_message(client, userdata, message):
                 prediction=unknown_result["prediction"],
                 confidence=unknown_result["confidence"],
                 action=unknown_result["action"],
+                severity=unknown_result.get("severity", "High"),
                 sensor_value=None
             )
             return
 
         # RULE 4: EXCESSIVE MQTT MESSAGE RATE DETECTION
         current_time = time.time()
+        time_window = get_setting("message_rate_window", 10)
+        rate_limit = get_setting("message_rate_limit", 10)
+        block_duration = get_setting("device_block_duration", BLOCK_DURATION)
+
         if device_id not in message_tracker:
             message_tracker[device_id] = []
 
         message_tracker[device_id].append(current_time)
 
-        # Keep only timestamps within sliding 10-second window
+        # Keep only timestamps within sliding window
         message_tracker[device_id] = [
             t for t in message_tracker[device_id]
-            if current_time - t <= 10
+            if current_time - t <= time_window
         ]
         message_count = len(message_tracker[device_id])
-        print("Messages from", device_id, "in last 10 seconds:", message_count)
+        print(f"Messages from {device_id} in last {time_window} seconds: {message_count}")
 
-        rate_result = check_message_rate(message_count)
+        rate_result = check_message_rate(message_count, rate_limit=rate_limit)
         if rate_result["is_suspicious"]:
             print("----------------------------------------")
             print("SECURITY ALERT: Excessive MQTT Message Rate")
             print("Device:", device_id)
             print("Message count:", message_count)
-            print("Prediction:", rate_result["prediction"])
+            print("Severity:", rate_result.get("severity", "High"))
             print("Action:", rate_result["action"])
-            print(f"Device blocked for {BLOCK_DURATION} seconds: {device_id}")
+            print(f"Device blocked for {block_duration} seconds: {device_id}")
             print("Message rejected (sensor data NOT stored)")
             print("----------------------------------------")
 
-            blocked_devices[device_id] = current_time + BLOCK_DURATION
+            blocked_devices[device_id] = current_time + block_duration
             update_device_status(device_id, "Blocked")
 
             record_security_event(
@@ -149,6 +179,7 @@ def on_message(client, userdata, message):
                 prediction=rate_result["prediction"],
                 confidence=rate_result["confidence"],
                 action=rate_result["action"],
+                severity=rate_result.get("severity", "High"),
                 sensor_value=None
             )
             return
@@ -159,14 +190,17 @@ def on_message(client, userdata, message):
         except Exception:
             data = None
 
-        # RULE 3: INVALID SENSOR DATA DETECTION
-        invalid_data_result = check_invalid_sensor_data(data)
+        # Fetch configured sensors for this device
+        configured_sensors = get_device_sensors(device_id)
+
+        # RULE 3: DYNAMIC INVALID SENSOR DATA DETECTION
+        invalid_data_result = check_invalid_sensor_data(data, configured_sensors=configured_sensors)
         if invalid_data_result["is_suspicious"]:
             print("----------------------------------------")
             print("SECURITY ALERT: Invalid Sensor Data")
             print("Device:", device_id)
             print("Event:", invalid_data_result["event_type"])
-            print("Prediction:", invalid_data_result["prediction"])
+            print("Severity:", invalid_data_result.get("severity", "Medium"))
             print("Action:", invalid_data_result["action"])
             print("Message rejected (sensor data NOT stored, device status NOT updated)")
             print("----------------------------------------")
@@ -177,46 +211,47 @@ def on_message(client, userdata, message):
                 prediction=invalid_data_result["prediction"],
                 confidence=invalid_data_result["confidence"],
                 action=invalid_data_result["action"],
+                severity=invalid_data_result.get("severity", "Medium"),
                 sensor_value=None
             )
             return
 
-        temperature = data.get("temperature")
-        humidity = data.get("humidity")
-        motion = data.get("motion")
-
-        print("Temperature:", temperature)
-        print("Humidity:", humidity)
-        print("Motion:", motion)
+        # Print received valid telemetry
+        for k, v in data.items():
+            print(f"{k.capitalize()}: {v}")
 
         # RULE 2: ABNORMAL TEMPERATURE DETECTION
-        temp_result = check_abnormal_temperature(temperature)
-        if temp_result["is_suspicious"]:
-            print("----------------------------------------")
-            print("SECURITY ALERT: Abnormal Temperature Detected")
-            print("Device:", device_id)
-            print("Abnormal temperature:", temperature)
-            print("Event:", temp_result["event_type"])
-            print("Prediction:", temp_result["prediction"])
-            print("Action:", temp_result["action"])
-            print("Setting device status to Suspicious")
-            print("----------------------------------------")
+        if "temperature" in data:
+            temp_result = check_abnormal_temperature(data["temperature"])
+            if temp_result["is_suspicious"]:
+                print("----------------------------------------")
+                print("SECURITY ALERT: Abnormal Temperature Detected")
+                print("Device:", device_id)
+                print("Abnormal temperature:", data["temperature"])
+                print("Event:", temp_result["event_type"])
+                print("Severity:", temp_result.get("severity", "Medium"))
+                print("Action:", temp_result["action"])
+                print("Setting device status to Suspicious")
+                print("----------------------------------------")
 
-            record_security_event(
-                device_id=device_id,
-                event_type=temp_result["event_type"],
-                prediction=temp_result["prediction"],
-                confidence=temp_result["confidence"],
-                action=temp_result["action"],
-                sensor_value=temperature
-            )
-            update_device_status(device_id, "Suspicious")
+                record_security_event(
+                    device_id=device_id,
+                    event_type=temp_result["event_type"],
+                    prediction=temp_result["prediction"],
+                    confidence=temp_result["confidence"],
+                    action=temp_result["action"],
+                    severity=temp_result.get("severity", "Medium"),
+                    sensor_value=data["temperature"]
+                )
+                update_device_status(device_id, "Suspicious")
+            else:
+                update_device_status(device_id, "Online")
         else:
-            # Normal reading -> Device status updated to Online
+            # Valid telemetry without temperature -> Device status updated to Online
             update_device_status(device_id, "Online")
 
         # Record valid sensor telemetry
-        record_sensor_data(device_id, temperature, humidity, motion)
+        record_sensor_readings(device_id, data)
         print("Sensor data saved to database")
         print("----------------------------------------")
 
@@ -226,19 +261,26 @@ def on_message(client, userdata, message):
 
 # START MQTT
 def start_mqtt():
+    global mqtt_client, unblock_thread_started
+
+    host = get_setting("mqtt_broker_host", MQTT_BROKER)
+    port = int(get_setting("mqtt_broker_port", MQTT_PORT))
+
     client = mqtt.Client(
         mqtt.CallbackAPIVersion.VERSION2
     )
 
     client.on_connect = on_connect
     client.on_message = on_message
+    client.on_disconnect = on_disconnect
+    mqtt_client = client
 
-    print("Starting MQTT connection...")
+    print(f"Starting MQTT connection to {host}:{port}...")
 
     try:
         client.connect(
-            MQTT_BROKER,
-            MQTT_PORT,
+            host,
+            port,
             60
         )
 
@@ -251,10 +293,25 @@ def start_mqtt():
         print("MQTT background thread started")
 
         # Keep unblock timer running in background thread
-        threading.Thread(
-            target=unblock_expired_devices,
-            daemon=True
-        ).start()
+        if not unblock_thread_started:
+            threading.Thread(
+                target=unblock_expired_devices,
+                daemon=True
+            ).start()
+            unblock_thread_started = True
 
     except Exception as error:
         print("MQTT connection failed:", error)
+
+
+def reconnect_mqtt():
+    global mqtt_client, mqtt_connected
+    print("Reconnecting MQTT with updated settings...")
+    if mqtt_client:
+        try:
+            mqtt_client.disconnect()
+        except Exception as error:
+            print("Error disconnecting old MQTT client:", error)
+    mqtt_connected = False
+    time.sleep(0.5)
+    start_mqtt()

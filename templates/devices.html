@@ -98,11 +98,16 @@
               <p>IoT devices connected to the network</p>
             </div>
 
-            <input
-              type="text"
-              id="device-search"
-              placeholder="Search devices..."
-            />
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <input
+                type="text"
+                id="device-search"
+                placeholder="Search devices..."
+              />
+              <button id="open-add-device-btn" class="btn-primary" onclick="openAddDeviceModal()">
+                + Add Device
+              </button>
+            </div>
           </div>
 
           <div class="table-container">
@@ -113,25 +118,108 @@
                   <th>Name</th>
                   <th>Type</th>
                   <th>IP Address</th>
+                  <th>Sensors</th>
                   <th>Status</th>
                   <th>Last Seen</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
 
               <tbody id="devices-table-body">
                 <tr>
-                  <td colspan="6">Loading devices...</td>
+                  <td colspan="8">Loading devices...</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
+
+        <!-- Add / Edit Device Modal -->
+        <div id="device-modal" class="modal-overlay" style="display: none;">
+          <div class="modal-card">
+            <div class="modal-header">
+              <h2 id="modal-title">Add New Device</h2>
+              <button class="modal-close-btn" onclick="closeDeviceModal()">&times;</button>
+            </div>
+
+            <form id="device-form" onsubmit="handleDeviceFormSubmit(event)">
+              <div class="form-group">
+                <label for="modal-device-id">Device ID *</label>
+                <input
+                  type="text"
+                  id="modal-device-id"
+                  required
+                  placeholder="e.g. ESP32_04"
+                />
+                <span class="field-hint">Unique hardware or network identifier</span>
+              </div>
+
+              <div class="form-group">
+                <label for="modal-device-name">Device Name *</label>
+                <input
+                  type="text"
+                  id="modal-device-name"
+                  required
+                  placeholder="e.g. Environmental Sensor"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="modal-device-type">Device Type</label>
+                <input
+                  type="text"
+                  id="modal-device-type"
+                  value="ESP32"
+                  placeholder="e.g. ESP32"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="modal-device-ip">IP Address</label>
+                <input
+                  type="text"
+                  id="modal-device-ip"
+                  placeholder="e.g. 192.168.1.104"
+                />
+              </div>
+
+              <div class="form-group">
+                <label style="margin-bottom: 8px; display: block; font-weight: 600;">
+                  Configured Sensors
+                </label>
+                <div class="sensor-checkbox-group">
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="sensors" value="temperature" />
+                    <span>🌡️ Temperature</span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="sensors" value="humidity" />
+                    <span>💧 Humidity</span>
+                  </label>
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="sensors" value="motion" />
+                    <span>📡 Motion</span>
+                  </label>
+                </div>
+                <span class="field-hint">Select the sensors actually present on this device</span>
+              </div>
+
+              <div id="modal-error-message" class="modal-error" style="display: none;"></div>
+
+              <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeDeviceModal()">
+                  Cancel
+                </button>
+                <button type="submit" id="modal-submit-btn" class="btn-primary">
+                  Save Device
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
 
-    <script src="{{ url_for(
-    'static',
-    filename='js/devices.js'
-) }}"></script>
+    <script src="{{ url_for('static', filename='js/devices.js') }}"></script>
   </body>
 </html>

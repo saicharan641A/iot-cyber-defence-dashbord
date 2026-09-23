@@ -23,11 +23,9 @@ with app.test_client() as client:
     if data:
         first = data[0]
         check("Has device_id field", "device_id" in first)
-        check("Has temperature field", "temperature" in first)
-        check("Has humidity field", "humidity" in first)
-        check("Has motion field", "motion" in first)
+        check("Has sensor_type field", "sensor_type" in first)
+        check("Has sensor_value field", "sensor_value" in first)
         check("Has timestamp field", "timestamp" in first)
-        check("Does NOT have sensor_value field exposed in sensor_data", "sensor_value" not in first)
 
     print("\n=== TEST 2: Sensor Data API - Filter ESP32_01 ===")
     r = client.get("/api/sensor-data?device_id=ESP32_01")
@@ -122,8 +120,7 @@ with app.test_client() as client:
     check("Events table has Timestamp header", b'Timestamp' in r.data)
     check("Events table has Device ID header", b'Device ID' in r.data)
     check("Events table has Event Type header", b'Event Type' in r.data)
-    check("Events table has Prediction header", b'Prediction' in r.data)
-    check("Events table has Confidence header", b'Confidence' in r.data)
+    check("Events table has Severity header", b'Severity' in r.data)
     check("Events table has Action header", b'Action' in r.data)
     check("Events table does NOT have Sensor Value column",
           b'Sensor Value' not in r.data)

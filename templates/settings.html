@@ -3,17 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <title>Settings - IoT Defense</title>
-
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/styles.css') }}"
     />
   </head>
-
   <body>
-    <div class="app-container">
+    <div class="dashboard">
       <!-- Sidebar -->
       <aside class="sidebar">
         <div class="logo">
@@ -22,184 +19,307 @@
         </div>
 
         <nav>
-          <a href="/">Dashboard</a>
-          <a href="/devices">Devices</a>
-          <a href="/security-events">Security Events</a>
-          <a href="/sensor-data">Sensor Data</a>
-          <a href="/settings" class="active">Settings</a>
+          <a href="/" class="nav-item">Dashboard</a>
+          <a href="/devices" class="nav-item">Devices</a>
+          <a href="/security-events" class="nav-item">Security Events</a>
+          <a href="/sensor-data" class="nav-item">Sensor Data</a>
+          <a href="/settings" class="nav-item active">Settings</a>
         </nav>
       </aside>
 
       <!-- Main Content -->
       <main class="main-content">
-        <!-- Header -->
-        <div class="page-header">
+        <!-- Top Header -->
+        <header class="top-header">
           <div>
             <h1>Settings</h1>
-            <p>Configure your IoT security system</p>
+            <p>System configuration & rule-based cybersecurity defense parameters</p>
           </div>
 
           <div class="system-status">
             <span class="status-dot"></span>
             System Online
           </div>
-        </div>
+        </header>
 
-        <!-- Settings Grid -->
+        <!-- Notification Banner -->
+        <div id="settings-alert" class="settings-alert" style="display: none;"></div>
+
+        <!-- Settings Cards Grid -->
         <div class="settings-grid">
-          <!-- System Settings -->
+          <!-- Card 1: MQTT Configuration -->
           <div class="settings-card">
             <div class="settings-card-header">
               <div>
-                <h2>System Settings</h2>
-                <p>Basic system configuration</p>
+                <h2>MQTT Configuration</h2>
+                <p>Broker connection and telemetry ingestion settings</p>
+              </div>
+              <span id="mqtt-status-badge" class="connection-badge disconnected">
+                <span class="status-indicator-dot"></span>
+                <span id="mqtt-status-text">Disconnected</span>
+              </span>
+            </div>
+
+            <form id="mqtt-settings-form" onsubmit="handleSaveMQTT(event)">
+              <div class="setting-field">
+                <label for="mqtt-host">Broker Host</label>
+                <input
+                  type="text"
+                  id="mqtt-host"
+                  name="mqtt_broker_host"
+                  placeholder="e.g. localhost"
+                  required
+                />
+                <span class="setting-hint">Hostname or IP address of the Mosquitto MQTT broker</span>
+              </div>
+
+              <div class="setting-field">
+                <label for="mqtt-port">Broker Port</label>
+                <input
+                  type="number"
+                  id="mqtt-port"
+                  name="mqtt_broker_port"
+                  min="1"
+                  max="65535"
+                  placeholder="1883"
+                  required
+                />
+                <span class="setting-hint">Default MQTT port is 1883 (unencrypted standard)</span>
+              </div>
+
+              <div class="setting-field">
+                <label for="mqtt-topic">MQTT Topic</label>
+                <input
+                  type="text"
+                  id="mqtt-topic"
+                  name="mqtt_topic"
+                  placeholder="iot/esp32/+/sensor"
+                  required
+                />
+                <span class="setting-hint">Topic subscription pattern for ESP32 sensor telemetry</span>
+              </div>
+
+              <div class="settings-card-footer">
+                <button type="submit" id="save-mqtt-btn" class="btn-primary">
+                  Save MQTT Settings
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Card 2: Security Rules Configuration -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Security Rules</h2>
+                <p>Detection thresholds and automated rule parameters</p>
+              </div>
+              <span class="defense-mode-badge">Rule-Based Active</span>
+            </div>
+
+            <form id="security-rules-form" onsubmit="handleSaveSecurityRules(event)">
+              <div class="setting-field">
+                <label for="temp-threshold">Abnormal Temperature Threshold (°C)</label>
+                <div class="input-with-unit">
+                  <input
+                    type="number"
+                    step="0.1"
+                    id="temp-threshold"
+                    name="temperature_threshold"
+                    min="-50"
+                    max="150"
+                    required
+                  />
+                  <span class="input-unit">°C</span>
+                </div>
+                <span class="setting-hint">Triggers Rule 2 when device temperature exceeds this value</span>
+              </div>
+
+              <div class="setting-field">
+                <label for="rate-limit">Maximum MQTT Messages</label>
+                <div class="input-with-unit">
+                  <input
+                    type="number"
+                    id="rate-limit"
+                    name="message_rate_limit"
+                    min="1"
+                    required
+                  />
+                  <span class="input-unit">msgs</span>
+                </div>
+                <span class="setting-hint">Triggers Rule 4 when message rate exceeds this count in the window</span>
+              </div>
+
+              <div class="setting-field">
+                <label for="rate-window">Rate Time Window (Seconds)</label>
+                <div class="input-with-unit">
+                  <input
+                    type="number"
+                    id="rate-window"
+                    name="message_rate_window"
+                    min="1"
+                    required
+                  />
+                  <span class="input-unit">sec</span>
+                </div>
+                <span class="setting-hint">Sliding time window for message rate monitoring</span>
+              </div>
+
+              <div class="setting-field">
+                <label for="block-duration">Device Block Duration (Seconds)</label>
+                <div class="input-with-unit">
+                  <input
+                    type="number"
+                    id="block-duration"
+                    name="device_block_duration"
+                    min="1"
+                    required
+                  />
+                  <span class="input-unit">sec</span>
+                </div>
+                <span class="setting-hint">Duration a device remains blocked after rate violation</span>
+              </div>
+
+              <div class="settings-card-footer">
+                <button type="submit" id="save-rules-btn" class="btn-primary">
+                  Save Security Rules
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Card 3: Security Actions Overview -->
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <div>
+                <h2>Security Actions</h2>
+                <p>Automated responses executed by cybersecurity detection rules</p>
               </div>
             </div>
 
-            <div class="setting-row">
-              <div>
-                <strong>System Name</strong>
-                <span>Name displayed on the dashboard</span>
+            <div class="rules-action-list">
+              <div class="rule-action-item">
+                <div class="rule-header">
+                  <div class="rule-title-group">
+                    <span class="rule-tag">Rule 1</span>
+                    <strong>Unknown Device Detection</strong>
+                  </div>
+                  <span class="badge severity-high">High</span>
+                </div>
+                <div class="rule-meta">
+                  <span class="rule-action-pill">Action: Alert Generated &bull; Telemetry Rejected</span>
+                </div>
+                <p class="rule-desc">
+                  Messages received from unregistered device IDs are immediately rejected and logged as security events. Device is NOT added to the database.
+                </p>
               </div>
 
-              <input type="text" value="IoT Defense" id="system-name" />
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>System Status</strong>
-                <span>Current security system status</span>
+              <div class="rule-action-item">
+                <div class="rule-header">
+                  <div class="rule-title-group">
+                    <span class="rule-tag">Rule 2</span>
+                    <strong>Abnormal Temperature Detection</strong>
+                  </div>
+                  <span class="badge severity-medium">Medium</span>
+                </div>
+                <div class="rule-meta">
+                  <span class="rule-action-pill">Action: Alert Generated &bull; Status Changed to Suspicious</span>
+                </div>
+                <p class="rule-desc">
+                  When temperature exceeds the configured threshold, a security alert is generated and device status is updated to Suspicious. Valid sensor data is recorded.
+                </p>
               </div>
 
-              <span class="setting-status online"> ● Online </span>
+              <div class="rule-action-item">
+                <div class="rule-header">
+                  <div class="rule-title-group">
+                    <span class="rule-tag">Rule 3</span>
+                    <strong>Invalid Sensor Data Detection</strong>
+                  </div>
+                  <span class="badge severity-medium">Medium</span>
+                </div>
+                <div class="rule-meta">
+                  <span class="rule-action-pill">Action: Alert Generated &bull; Payload Rejected</span>
+                </div>
+                <p class="rule-desc">
+                  Rejects non-numeric, corrupted, malformed, empty, or unconfigured sensor telemetry. Payload is discarded and not recorded.
+                </p>
+              </div>
+
+              <div class="rule-action-item">
+                <div class="rule-header">
+                  <div class="rule-title-group">
+                    <span class="rule-tag">Rule 4</span>
+                    <strong>Excessive MQTT Message Rate</strong>
+                  </div>
+                  <span class="badge severity-high">High</span>
+                </div>
+                <div class="rule-meta">
+                  <span class="rule-action-pill">Action: Device Blocked &bull; Messages Dropped</span>
+                </div>
+                <p class="rule-desc">
+                  When a device exceeds the message rate limit within the time window, it is blocked for the configured duration. All incoming messages are dropped until the block expires.
+                </p>
+              </div>
             </div>
           </div>
 
-          <!-- Alert Settings -->
+          <!-- Card 4: System Information -->
           <div class="settings-card">
             <div class="settings-card-header">
               <div>
-                <h2>Alert Settings</h2>
-                <p>Security notification preferences</p>
+                <h2>System Information</h2>
+                <p>Environment, framework, and architectural details</p>
               </div>
             </div>
 
-            <div class="setting-row">
-              <div>
-                <strong>Security Alerts</strong>
-                <span>Receive alerts for suspicious activity</span>
+            <div class="sys-info-grid">
+              <div class="sys-info-row">
+                <span class="sys-info-label">Application</span>
+                <span class="sys-info-value highlight">AI-Powered Autonomous Cyber Defense System for IoT Networks</span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" checked />
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>High Confidence Alerts</strong>
-                <span>Alert when AI confidence is high</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">Detection Mode</span>
+                <span class="sys-info-value">Rule-Based Security (Rules 1–4)</span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" checked />
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Security Settings -->
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <div>
-                <h2>Security Settings</h2>
-                <p>AI detection configuration</p>
-              </div>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>AI Detection</strong>
-                <span>Enable AI-based anomaly detection</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">AI/ML Status</span>
+                <span class="sys-info-value tag-na">Not Implemented (Rule-Based Active)</span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" checked />
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>Automatic Response</strong>
-                <span>Enable automated security response</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">Backend</span>
+                <span class="sys-info-value">Python / Flask</span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" />
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Network Settings -->
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <div>
-                <h2>Network Settings</h2>
-                <p>IoT network configuration</p>
-              </div>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>MQTT Broker</strong>
-                <span>MQTT communication endpoint</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">Database</span>
+                <span class="sys-info-value">SQLite (database/iot_security.db)</span>
               </div>
 
-              <span class="setting-value"> Not Connected </span>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>Network Status</strong>
-                <span>Current IoT network connection</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">MQTT Broker</span>
+                <span class="sys-info-value">Mosquitto (Paho-MQTT client)</span>
               </div>
 
-              <span class="setting-status online"> ● Connected </span>
-            </div>
-          </div>
-
-          <!-- Database Settings -->
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <div>
-                <h2>Database</h2>
-                <p>Security database information</p>
-              </div>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>Database</strong>
-                <span>Local security database</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">Supported Hardware</span>
+                <span class="sys-info-value">ESP32 Microcontrollers</span>
               </div>
 
-              <span class="setting-status online"> ● Connected </span>
-            </div>
-
-            <div class="setting-row">
-              <div>
-                <strong>Database Type</strong>
-                <span>Current database engine</span>
+              <div class="sys-info-row">
+                <span class="sys-info-label">Supported Sensors</span>
+                <span class="sys-info-value">Temperature (DHT), Humidity (DHT), Motion (PIR)</span>
               </div>
-
-              <span class="setting-value"> SQLite </span>
             </div>
           </div>
         </div>
       </main>
     </div>
+
+    <!-- Settings JavaScript -->
+    <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
   </body>
 </html>

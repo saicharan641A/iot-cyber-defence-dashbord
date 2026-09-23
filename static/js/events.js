@@ -1,3 +1,20 @@
+function getEventSeverity(event) {
+    if (event.severity) {
+        return event.severity;
+    }
+    const type = event.event_type || "";
+    if (type.includes("Unknown") || type.includes("Excessive")) {
+        return "High";
+    }
+    if (type.includes("Abnormal") || type.includes("Invalid")) {
+        return "Medium";
+    }
+    if (event.prediction === "Suspicious") {
+        return "Medium";
+    }
+    return "Low";
+}
+
 async function loadSecurityEvents() {
     try {
         const response = await fetch("/api/security-events");
@@ -7,8 +24,6 @@ async function loadSecurityEvents() {
         }
 
         const events = await response.json();
-
-        console.log("Security Events:", events);
 
         updateEventSummary(events);
         displaySecurityEvents(events);
@@ -20,7 +35,7 @@ async function loadSecurityEvents() {
         if (tableBody) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="loading-cell">
+                    <td colspan="5" class="loading-cell" style="color: #ef4444;">
                         Unable to load security events
                     </td>
                 </tr>
@@ -34,21 +49,21 @@ async function loadSecurityEvents() {
 function updateEventSummary(events) {
     const total = events.length;
 
-    const suspicious = events.filter(
-        event => event.prediction === "Suspicious"
+    const high = events.filter(
+        event => getEventSeverity(event) === "High"
     ).length;
 
-    const normal = events.filter(
-        event => event.prediction === "Normal"
+    const medium = events.filter(
+        event => getEventSeverity(event) === "Medium"
     ).length;
 
     const totalEl = document.getElementById("total-events");
-    const suspiciousEl = document.getElementById("suspicious-events");
-    const normalEl = document.getElementById("normal-events");
+    const highEl = document.getElementById("high-events");
+    const mediumEl = document.getElementById("medium-events");
 
     if (totalEl) totalEl.textContent = total;
-    if (suspiciousEl) suspiciousEl.textContent = suspicious;
-    if (normalEl) normalEl.textContent = normal;
+    if (highEl) highEl.textContent = high;
+    if (mediumEl) mediumEl.textContent = medium;
 }
 
 
@@ -62,7 +77,7 @@ function displaySecurityEvents(events) {
     if (events.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="loading-cell">
+                <td colspan="5" class="loading-cell">
                     No security events found
                 </td>
             </tr>
@@ -73,12 +88,15 @@ function displaySecurityEvents(events) {
     events.forEach(event => {
         const row = document.createElement("tr");
 
+        const severity = getEventSeverity(event);
         let badgeClass = "normal";
-        if (event.prediction === "Suspicious") {
-            badgeClass = "suspicious";
+        if (severity === "High") {
+            badgeClass = "severity-high";
+        } else if (severity === "Medium") {
+            badgeClass = "severity-medium";
+        } else if (severity === "Low") {
+            badgeClass = "severity-low";
         }
-
-        const confidence = (event.confidence * 100).toFixed(0);
 
         row.innerHTML = `
             <td>
@@ -92,11 +110,8 @@ function displaySecurityEvents(events) {
             </td>
             <td>
                 <span class="badge ${badgeClass}">
-                    ${event.prediction}
+                    ${severity}
                 </span>
-            </td>
-            <td>
-                ${confidence}%
             </td>
             <td>
                 ${event.action}

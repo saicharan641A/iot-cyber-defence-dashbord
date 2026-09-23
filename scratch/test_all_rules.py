@@ -192,9 +192,7 @@ print("\n--- Test 0: Normal Telemetry ---")
 sensor_count_before = count_sensor_data("ESP32_01")
 
 normal_payload = {
-    "temperature": 24.5,
-    "humidity": 55.0,
-    "motion": 0
+    "temperature": 24.5
 }
 
 publisher.publish(
@@ -342,9 +340,7 @@ print(
 sensor_count_01_before = count_sensor_data("ESP32_01")
 
 abnormal_temp_payload = {
-    "temperature": 75.0,
-    "humidity": 65.0,
-    "motion": 1
+    "temperature": 75.0
 }
 
 publisher.publish(
@@ -389,9 +385,7 @@ passed_2 = (
 # ============================================================
 
 normal_subsequent = {
-    "temperature": 26.0,
-    "humidity": 50.0,
-    "motion": 0
+    "temperature": 26.0
 }
 
 publisher.publish(
@@ -647,8 +641,6 @@ for i in range(11):
     publisher.publish(
         "iot/esp32/02/sensor",
         json.dumps({
-            "temperature": 25.0,
-            "humidity": 50.0,
             "motion": 0
         })
     )
@@ -680,8 +672,6 @@ sensor_count_before_blocked = count_sensor_data(
 publisher.publish(
     "iot/esp32/02/sensor",
     json.dumps({
-        "temperature": 25.0,
-        "humidity": 50.0,
         "motion": 0
     })
 )
@@ -730,8 +720,6 @@ unblocked_successfully = (
 publisher.publish(
     "iot/esp32/02/sensor",
     json.dumps({
-        "temperature": 26.0,
-        "humidity": 52.0,
         "motion": 1
     })
 )

@@ -131,96 +131,24 @@
           </div>
         </section>
 
-        <!-- Sensor Monitoring -->
-
-        <div class="panel sensor-panel">
+        <!-- Live Sensor Activity -->
+        <div class="panel sensor-panel" style="margin-top: 25px;">
           <div class="panel-header">
             <div>
-              <h2>Sensor Monitoring</h2>
-              <p class="panel-subtitle">Latest IoT sensor readings</p>
+              <h2>Live Sensor Activity</h2>
+              <p class="panel-subtitle">Current telemetry by device and sensor configuration</p>
             </div>
 
             <span class="live-indicator">
               <span class="live-dot"></span>
-              Live
+              Live Telemetry
             </span>
           </div>
 
-          <div class="sensor-grid">
-            <!-- Temperature -->
-
-            <div class="sensor-card">
-              <div class="sensor-icon">🌡️</div>
-
-              <div class="sensor-info">
-                <span class="sensor-label"> Temperature </span>
-
-                <strong id="temperature-value"> -- </strong>
-
-                <span class="sensor-unit"> °C </span>
-              </div>
-            </div>
-
-            <!-- Humidity -->
-
-            <div class="sensor-card">
-              <div class="sensor-icon">💧</div>
-
-              <div class="sensor-info">
-                <span class="sensor-label"> Humidity </span>
-
-                <strong id="humidity-value"> -- </strong>
-
-                <span class="sensor-unit"> % </span>
-              </div>
-            </div>
-
-            <!-- Motion -->
-
-            <div class="sensor-card">
-              <div class="sensor-icon">📡</div>
-
-              <div class="sensor-info">
-                <span class="sensor-label"> Motion </span>
-
-                <strong id="motion-value"> -- </strong>
-              </div>
-            </div>
-
-            <!-- Device -->
-
-            <div class="sensor-card">
-              <div class="sensor-icon">📱</div>
-
-              <div class="sensor-info">
-                <span class="sensor-label"> Device </span>
-
-                <strong id="sensor-device"> -- </strong>
-              </div>
-            </div>
+          <div id="live-sensors-container" class="live-devices-sensor-grid">
+            <p style="color: #64748b; padding: 15px;">Loading sensor readings...</p>
           </div>
         </div>
-
-        <!-- Network Activity -->
-        <section class="panel network-panel">
-          <div class="panel-header">
-            <div>
-              <h2>Network Activity</h2>
-              <p>IoT network communication overview</p>
-            </div>
-          </div>
-
-          <div class="network-placeholder">
-            <div class="activity-bar bar-1"></div>
-            <div class="activity-bar bar-2"></div>
-            <div class="activity-bar bar-3"></div>
-            <div class="activity-bar bar-4"></div>
-            <div class="activity-bar bar-5"></div>
-            <div class="activity-bar bar-6"></div>
-            <div class="activity-bar bar-7"></div>
-            <div class="activity-bar bar-8"></div>
-          </div>
-        </section>
       </main>
     </div>
 

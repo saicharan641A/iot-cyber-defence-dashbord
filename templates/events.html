@@ -49,26 +49,20 @@
         <div class="summary-cards">
           <div class="summary-card">
             <span>Total Events</span>
-
             <h2 id="total-events">0</h2>
-
             <p>Security events detected</p>
           </div>
 
           <div class="summary-card">
-            <span>Suspicious Events</span>
-
-            <h2 id="suspicious-events">0</h2>
-
-            <p>Requires attention</p>
+            <span>High Severity</span>
+            <h2 id="high-events">0</h2>
+            <p>Critical network threats</p>
           </div>
 
           <div class="summary-card">
-            <span>Normal Events</span>
-
-            <h2 id="normal-events">0</h2>
-
-            <p>Normal network activity</p>
+            <span>Medium Severity</span>
+            <h2 id="medium-events">0</h2>
+            <p>Telemetry warnings & alerts</p>
           </div>
         </div>
 
@@ -77,8 +71,7 @@
           <div class="events-header">
             <div>
               <h2>Detected Security Events</h2>
-
-              <p>Recent activity identified by the security system</p>
+              <p>Recent activity identified by rule-based cyber defense</p>
             </div>
 
             <button class="refresh-button" onclick="loadSecurityEvents()">
@@ -93,15 +86,14 @@
                   <th>Timestamp</th>
                   <th>Device ID</th>
                   <th>Event Type</th>
-                  <th>Prediction</th>
-                  <th>Confidence</th>
+                  <th>Severity</th>
                   <th>Action</th>
                 </tr>
               </thead>
 
               <tbody id="events-table-body">
                 <tr>
-                  <td colspan="6" class="loading-cell">
+                  <td colspan="5" class="loading-cell">
                     Loading security events...
                   </td>
                 </tr>
