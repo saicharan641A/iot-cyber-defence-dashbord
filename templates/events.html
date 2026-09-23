@@ -74,9 +74,14 @@
               <p>Recent activity identified by rule-based cyber defense</p>
             </div>
 
-            <button class="refresh-button" onclick="loadSecurityEvents()">
-              ↻ Refresh
-            </button>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <button class="export-button" onclick="exportSecurityEventsCSV()">
+                📥 Export CSV
+              </button>
+              <button class="refresh-button" onclick="loadSecurityEvents()">
+                ↻ Refresh
+              </button>
+            </div>
           </div>
 
           <div class="events-table-container">

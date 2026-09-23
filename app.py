@@ -1,4 +1,7 @@
-from flask import Flask, render_template, jsonify, request, redirect
+import csv
+import io
+from datetime import datetime
+from flask import Flask, render_template, jsonify, request, redirect, Response
 from database import (
     initialize_database,
     insert_sample_devices,
@@ -125,6 +128,61 @@ def get_security_events():
         dict(event)
         for event in events
     ])
+
+
+@app.route("/api/security-events/export", methods=["GET"])
+def export_security_events_csv():
+    device_id = request.args.get("device_id")
+    connection = get_connection()
+
+    if device_id and device_id.strip().lower() != "all":
+        rows = connection.execute("""
+            SELECT timestamp, device_id, event_type, severity, action
+            FROM security_events
+            WHERE device_id = ?
+            ORDER BY id DESC
+        """, (device_id.strip(),)).fetchall()
+    else:
+        rows = connection.execute("""
+            SELECT timestamp, device_id, event_type, severity, action
+            FROM security_events
+            ORDER BY id DESC
+        """).fetchall()
+
+    connection.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Timestamp", "Device ID", "Event Type", "Severity", "Action"])
+
+    for row in rows:
+        sev = row["severity"]
+        if not sev:
+            et = row["event_type"] or ""
+            if "Unknown" in et or "Excessive" in et:
+                sev = "High"
+            elif "Abnormal" in et or "Invalid" in et:
+                sev = "Medium"
+            else:
+                sev = "Low"
+
+        writer.writerow([
+            row["timestamp"] or "",
+            row["device_id"] or "",
+            row["event_type"] or "",
+            sev,
+            row["action"] or ""
+        ])
+
+    csv_data = output.getvalue()
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    filename = f"security_events_{date_str}.csv"
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
     
 @app.route('/security-events')
 def security_events():
@@ -302,6 +360,52 @@ def get_sensor_data():
         dict(row)
         for row in rows
     ])
+
+
+@app.route("/api/sensor-data/export", methods=["GET"])
+def export_sensor_data_csv():
+    device_id = request.args.get("device_id")
+    connection = get_connection()
+
+    if device_id and device_id.strip().lower() != "all":
+        rows = connection.execute("""
+            SELECT timestamp, device_id, sensor_type, sensor_value
+            FROM sensor_data
+            WHERE device_id = ?
+            ORDER BY id DESC
+        """, (device_id.strip(),)).fetchall()
+    else:
+        rows = connection.execute("""
+            SELECT timestamp, device_id, sensor_type, sensor_value
+            FROM sensor_data
+            ORDER BY id DESC
+        """).fetchall()
+
+    connection.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Timestamp", "Device ID", "Sensor Type", "Sensor Value"])
+
+    for row in rows:
+        val = row["sensor_value"]
+        writer.writerow([
+            row["timestamp"] or "",
+            row["device_id"] or "",
+            row["sensor_type"] or "",
+            val if val is not None else ""
+        ])
+
+    csv_data = output.getvalue()
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    filename = f"sensor_data_{date_str}.csv"
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
 
 if __name__ == "__main__":
     start_mqtt()

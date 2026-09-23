@@ -227,6 +227,43 @@ function displaySensorData(records, selectedDevice) {
   });
 }
 
+async function exportSensorDataCSV() {
+  const select = document.getElementById("device-select");
+  const selectedDevice = select ? select.value : "all";
+  let url = "/api/sensor-data/export";
+  if (selectedDevice && selectedDevice !== "all") {
+    url += `?device_id=${encodeURIComponent(selectedDevice)}`;
+  }
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+    }
+    const blob = await response.blob();
+    const disposition = response.headers.get("Content-Disposition");
+    let filename = "sensor_data.csv";
+    if (disposition && disposition.includes("filename=")) {
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, "");
+      }
+    }
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(blobUrl);
+    document.body.removeChild(a);
+  } catch (err) {
+    console.error("Export error:", err);
+    alert("Unable to download CSV: " + err.message);
+  }
+}
+
 // Attach listener to dropdown
 const selectElement = document.getElementById("device-select");
 if (selectElement) {

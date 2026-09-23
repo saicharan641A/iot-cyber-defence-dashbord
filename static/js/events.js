@@ -123,6 +123,38 @@ function displaySecurityEvents(events) {
 }
 
 
+/* Export security events as CSV */
+async function exportSecurityEventsCSV() {
+    try {
+        const response = await fetch("/api/security-events/export");
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        const blob = await response.blob();
+        const disposition = response.headers.get("Content-Disposition");
+        let filename = "security_events.csv";
+        if (disposition && disposition.includes("filename=")) {
+            const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, "");
+            }
+        }
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (err) {
+        console.error("Export error:", err);
+        alert("Unable to download CSV: " + err.message);
+    }
+}
+
+
 /* Load data when page opens and poll every 5s */
 loadSecurityEvents();
 setInterval(loadSecurityEvents, 5000);
